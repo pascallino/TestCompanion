@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Criteria</title>
+       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #555;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            color: #666;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        #startButton {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h5 class="mt-4 mb-4">
+ <p> <b>Follow Instructions Carefully, read and adhere to all instructions provided below before taking the test.
+         
+</b></p><p> Test Duration: {{ duration }} minutes</p>
+        </h5>
+        <hr>
+        
+        <ul>
+              
+            <li>Time Management: Manage your time wisely to ensure completion of all sections within the allocated time.</li>
+            <li>Check Your Work: Review your responses for errors or omissions before submitting. Attention to detail is important.</li>
+            <li>Respect Time Limits: Adhere to time limits for each section to ensure fairness and consistency.</li>
+            <li>Ask for Clarification: If any instructions or questions are unclear, seek clarification from the test administrator.</li>
+        </ul>
+        <ul>
+            <li>No Googling or External Assistance: Do not use search engines, external websites, or any unauthorized materials during the test.</li>
+            <li>No Collaboration: Work independently. Collaboration with others or seeking help from friends or colleagues is not allowed.</li>
+            <li>No Unauthorized Devices: Do not use any unauthorized devices or software during the test, unless explicitly permitted.</li>
+            <li>No Disruptive Behavior: Avoid any disruptive behavior, including attempts to hack or manipulate the testing platform.</li>
+            <li>No Violation of Privacy: Respect the privacy and confidentiality of the test content. Do not attempt to share or discuss test questions with others.</li>
+            <li>No Multiple Submissions: Submit your test only once. Multiple submissions or attempts to manipulate the submission process are not allowed.</li>
+            <li>No Cheating: Do not engage in any form of cheating, including impersonation or using someone else's work as your own.</li>
+        </ul>
+
+        <form>
+            <div class="form-group">
+                <label for="user_id"><b>User ID:</b></label>
+                <input type="text" class="form-control" id="user_id" placeholder="Enter user ID sent in your mail" name="user_id" required>
+            </div>
+            <div class="form-group">
+                <label for="secret_key">Secret Key:</label>
+                <input type="password" class="form-control" id="secret_key" placeholder="Enter secret key" name="secret_key" required>
+            </div>
+            <button type="button" class="btn btn-success" id="startButton" onclick="startTest()">Start Test</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function startTest() {
+            const user_id = document.getElementById('user_id').value.trim();
+            const secret_key = document.getElementById('secret_key').value.trim();
+    
+            if (user_id === '' || secret_key === '') {
+                alert('Please fill the fields correctly');
+                return;
+            }
+    
+            // Send a POST request to authenticate the user
+            $.ajax({
+                url: `/authenticate_applicant/${user_id}/${secret_key}`,
+                type: 'POST',
+                success: function (data) {
+                    // Check if the authentication was successful
+                    if (data.access_token) {
+                        // Set the received access token as a cookie (if needed)
+                        document.cookie = `UserTestToken=${data.access_token}; path=/; secure; samesite=Strict`;
+    
+                        // Redirect to the test page
+                        window.location.href = `/taketest/${user_id}/${secret_key}`;
+                    } else {
+                        alert(data.error);
+                        //alert('Authentication failed. Please check your credentials.');
+                    }
+                },
+                error: function () {
+                    alert('Error during authentication. Please try again later.');
+                }
+            });
+        }
+    
+        function getCookie(name) {
+            const cookieArray = document.cookie.split('; ');
+            for (const cookie of cookieArray) {
+                const [cookieName, cookieValue] = cookie.split('=');
+                if (cookieName === name) {
+                    return cookieValue;
+                }
+            }
+            return null;
+        }
+        
+        const UserTestToken = getCookie('UserTestToken');
+        console.log(UserTestToken);
+    </script>
+</body>
+</html>

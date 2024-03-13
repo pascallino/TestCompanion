@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - TestCompanion</title>
+    <!-- Add Bootstrap CSS link here -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+      
+        .card {
+            margin-bottom: 2rem;
+        }
+
+        footer {
+            background-color: #34495e;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="/static/styles/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+
+<body>
+    
+    <header>
+        <div style="float: left;">
+        <h4> About Us</h4>
+        </div>
+        <div style="float: right;">
+            <a href="{{ url_for('home') }}" class="signout">  <i class="fa fa-home" aria-hidden="true"></i> Home</a>  
+                        {% if  current_user.is_authenticated %} 
+        
+                        <a href="{{ url_for('logout') }}"  class="signout" style="padding: 8px"><i class="fa fa-sign-out" aria-hidden="true"></i>Sign out</a>
+                        <a href="{{ url_for('mainboard', user_id=current_user.userid) }}" class="signout" ><i class="fa fa-tasks" aria-hidden="true"></i> Dashboard</a>   
+                           {% endif %}
+                </div>
+     </header>
+    <div class="container">
+   <br>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Our Mission</h5>
+                <p class="card-text">Empowering individuals to excel in aptitude testing and enhance their skills for success.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Who We Are</h5>
+                <p class="card-text">TestCompanion is a dedicated platform designed to provide comprehensive and effective aptitude testing solutions.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Contact Us</h5>
+                <p class="card-text">Feel free to reach out to us at <a href="mailto:info@mytestcompanion.com">info@mytestcompanion.com</a><br> <a href="contact"> click here</a></p>
+            </div>
+        </div>
+    </div>
+
+   
+
+    <!-- Add Bootstrap JS and Popper.js before the closing </body> tag -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,522 @@
+
+<!-- HTML -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+    <style>
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="checkbox"] {
+            transform: scale(2.0); /* Increase the size of the checkbox */
+            margin-right: 5px; /* Adjust the spacing between checkbox and label */
+        }
+        /* Define your custom styles for the textbox */
+        .custom-textbox {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        .custom-option {
+            width: 50%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        /* Style for better appearance */
+        #flash {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            display: none;
+            animation: fadeOut 2s ease-in-out; /* Set the fade-out animation */
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f8f9fa;
+        }
+    </style>
+    <link rel="stylesheet" href="/static/styles/style.css">
+    <title>Edit Question</title>
+</head>
+<body>
+    <header>
+        <div style="float: left;">
+        <h4> Setup Question(s) - {{ testname }}</h4>
+        </div>
+        <div style="float: right;">
+            <a href="{{ url_for('home') }}" class="signout">  <i class="fa fa-home" aria-hidden="true"></i> Home</a> |
+            <a href="{{ url_for('logout') }}"  class="signout" style="padding: 8px"><i class="fa fa-sign-out" aria-hidden="true"></i>Sign out</a>    |
+            <a href="{{ url_for('mainboard', user_id=user_id) }}" class="signout" ><i class="fa fa-tasks" aria-hidden="true"></i> Dashboard</a>   
+      
+                </div>
+     </header>
+
+    <div class="container mt-5">
+    <div style="float: right;">
+        <a href="{{ url_for('dashboard', user_id=user_id) }}" class="btn btn-secondary">Home</a>
+</div>
+    <form method="post" id="questionForm" enctype="multipart/form-data">
+        <button type="submit" id="upload" class="btn btn-dark" hidden >Save uploaded files</button>
+
+    </form>
+
+    <button type="button"  class="btn btn-dark" onclick="addQuestion()">Add Question</button>
+   
+</div>
+<div id="overlay">
+    <div class="spinner"></div>
+</div>
+<div id="successMessage" style="display: none;"></div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        let userid = '{{ user_id }}';
+        let testid = '{{ test_id }}';
+        let isreload  = false;
+        let questionCount_ = 0;
+
+        $(document).ready(function () {
+            
+           // updatemailstatus('onload');
+            // Attach a submit event listener to the form
+            $('#questionForm').submit(function (event) {
+                // Prevent the default form submission
+                event.preventDefault();
+// Create a new FormData object
+const formD = new FormData();
+
+// Append JSON data to FormData
+ 
+
+// Append file(s) to FormData dynamically
+const questionContainers = document.querySelectorAll('[id^="question_"]');
+questionContainers.forEach(container => {
+    const hash = container.getAttribute('data-hash');
+    const fileInput = document.getElementById(`image_${hash}_${testid}`);
+    
+    if (fileInput && fileInput.files.length > 0) {
+        formD.append(`image_${hash}_${testid}`, fileInput.files[0]);
+    }
+});
+        showLoadingSpinner();
+        fetch('/uploadimages/' + testid , {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${jwtToken}`,
+            },
+            body: formD,
+        }).then(response => {
+                if (!response.ok) {
+                    window.location.href = '/signin?next=/editquestion/' + testid + '/' + userid;
+                }
+                return response.json();
+                })
+            .then(data => {
+                hideLoadingSpinner();
+                if (data.message){
+                showSuccessMessage(data.message);
+                window.location.href = window.location.href;
+                }
+                if (data.error){
+                    showSuccessMessage(data.error);
+    
+                    }
+    
+                // Hide the success message after a few seconds
+                setTimeout(() => {
+                    hideSuccessMessage();
+                }, 8000);
+                if (data.status === 'success') {
+                    // Refresh the current page on success
+                    //console.log(data);
+                    //location.reload();
+                    
+                } else {
+                    console.error('Error:', data.error);
+                    // Handle error as needed
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle error as needed
+            });
+        });
+    
+    
+    });
+
+        function getCookie(name) {
+            const cookieArray = document.cookie.split('; ');
+            for (const cookie of cookieArray) {
+                const [cookieName, cookieValue] = cookie.split('=');
+                if (cookieName === name) {
+                    return cookieValue;
+                }
+            }
+            return null;
+        }
+        
+        const jwtToken = getCookie('jwtToken');
+        console.log(jwtToken);
+        let edit = false;
+        function generateUniqueNumber() {
+            const timestamp = new Date().getTime();
+            const randomValue = Math.random();
+            const hash = CryptoJS.MD5(`${timestamp}-${randomValue}`);
+            return hash.toString();
+        }
+
+        function populateFormFromJSON(jsonData) {
+            const questionForm = document.getElementById('questionForm');
+    
+            for (const key in jsonData) {
+                edit = true;
+                if (key.startsWith('question_text_')) {
+                    questionCount_++;
+                    if (jsonData['Lnum'] > 0) {
+                        questionCount_ = jsonData['Lnum']
+                    }
+                    //questionCount_++;
+                    console.log(questionCount_);
+                    const questionCount = parseInt(key.split('_')[2]);
+                    const hash = key.replace(`question_text_${questionCount}-`, '');
+                    const image = jsonData[`image_${hash}`];
+                    console.log(image);
+                    const newQuestion = document.createElement('div');
+                    newQuestion.innerHTML = `
+                    <br>
+                    <div class='container'>
+                        <div id="question_${questionCount}" data-hash="${hash}">
+                            <!-- <h5>Question ${questionCount}</h5> -->
+                            <div style="float: right; color: white;">   <label for="${hash}"  name="${hash}" id="${hash}" data-hash="${hash}">${hash}</label></div>
+
+                            <label for="${key}">Question:</label>
+                            <input type="text" name="${key}" class='custom-textbox' placeholder='Add Question' value="${jsonData[key]}" required>
+                            <label for="image_${key}_{{ test_id }}">Image:</label>
+                            <input type="file" name="image_${key}_{{ test_id }}" id="image_${hash}_{{ test_id }}" accept="image/*">
+                        
+                            <div id="image-preview_${key}_{{ test_id }}">
+                                <!-- Display the existing image if available -->
+                                <img src="/static/images/${image}" alt="*jpg, *png only" style="max-width: 100%; max-height: 100px;">
+
+                            </div>
+                                                        <br>
+                            <label for="options-container_${questionCount}">Options:</label>
+                            <div id="options-container_${questionCount}">
+                            </div>
+                            <button type="button" class="btn btn-outline-dark"  onclick="addOption(${questionCount}, '{{ test_id }}')">Add Option</button>
+                            <button type="button" class="btn btn-outline-dark"  onclick="removeQuestion(${questionCount}, '${hash}', '{{ test_id }}')">Remove Question</button>
+                            <button type="button" class="btn btn-outline-dark"  onclick="saveQuestion('{{ test_id }}')">Save all / upload files</button>
+                            <br>
+                        </div>
+                    </div>
+                    `;
+    
+                    questionForm.appendChild(newQuestion);
+    
+                    // Populate options
+                    const optionsContainer = document.getElementById(`options-container_${questionCount}`);
+                    let correctOptions = [];
+    
+                    for (const optionKey in jsonData) {
+                        if (optionKey.startsWith(`option_text_${questionCount}`)) {
+                            const optionNumber = optionKey.split('_')[3];
+                            const optionText = jsonData[optionKey];
+    
+                            const optionInput = document.createElement('div');
+                            optionInput.innerHTML = `
+                                <input type="text" class='custom-option' name="${optionKey}" value="${optionText}" required>
+                                <input type="checkbox" name="correct_option_${questionCount}[]" value="${optionNumber}" ${jsonData[`correct_option_${questionCount}`].includes(optionNumber) ? 'checked' : ''}> Option ${optionNumber}
+                                <br>
+                            `;
+    
+                            optionsContainer.appendChild(optionInput);
+    
+                            if (jsonData[`correct_option_${questionCount}`].includes(optionNumber)) {
+                                correctOptions.push(optionNumber);
+                            }
+                        }
+                    }
+    
+                    // If correct options are not found among the existing options, create them
+                    for (const correctOption of jsonData[`correct_option_${questionCount}`]) {
+                        if (!correctOptions.includes(correctOption)) {
+                            const correctOptionInput = document.createElement('div');
+                            correctOptionInput.innerHTML = `
+                                <input type="checkbox" name="correct_option_${questionCount}[]" value="${correctOption}" checked> Option ${correctOption}
+                                <br>
+                            `;
+    
+                            optionsContainer.appendChild(correctOptionInput);
+                        }
+                    }
+                }
+            }
+        }
+        
+
+        function fetchData() {
+            // Replace 'your_jwt_token' with the actual token value
+        
+            return fetch(`http://localhost:5001/get_data/${testid}/${userid}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    window.location.href = '/signin?next=/editquestion/' + testid + '/' + userid;
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                window.location.href = '/signin?next=/editquestion/' + testid + '/' + userid;
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data received:', data);
+                populateFormFromJSON(data);
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            });
+        }
+       
+// Trigger fetchData when the page loads
+document.addEventListener('DOMContentLoaded', function () {
+    fetchData();
+});
+
+    function handleOptionChange(questionNumber) {
+        // Post JSON data to API immediately when changing options
+        postJSONData('{{ test_id }}');
+    }
+    function getImagePathForQuestion(questionNumber) {
+        // You may need to fetch the image path from your data source
+        // Replace this with the actual logic to get the image path based on questionNumber
+        // For example, if you have an array of image paths in JavaScript:
+        const imagePaths = {"1":
+            "/static/images/1.jpg", // replace with the actual paths
+             "2": "/static/images/2.jpg",
+            // ... other image paths ...
+        };
+
+        // Assuming questionNumber is 1-indexed
+        const imagePath = imagePaths[questionNumber];
+
+        return imagePath || ""; // Return empty string if no image path
+    }
+    function addQuestion() {
+      //  if (edit === true){
+       //     questionCount_++;
+        //}
+        edit = false;
+        questionCount_++;
+        const hash = generateUniqueNumber()
+        const questionForm = document.getElementById('questionForm');
+
+        const newQuestion = document.createElement('div');
+        newQuestion.innerHTML = `<br>
+        <div class='container'>
+            <div id="question_${questionCount_}" data-hash="${hash}">
+                <!-- <h5>Question ${questionCount_}</h5> -->
+                <div style="float: right; color: white;"> <label for="${hash}" name="${hash}" id="${hash}" data-hash="${hash}">${hash}</label></div>
+                <label for="question_text_${questionCount_}-${hash}">Question:</label>
+                <input type="text" class='custom-textbox'  name="question_text_${questionCount_}-${hash}" required>
+                
+                <label for="image_${hash}_{{ test_id }}">Image:</label>
+                <input type="file" name="image_${hash}_{{ test_id }}" id="image_${hash}_{{ test_id }}" accept="image/*">
+            
+                <div id="image-preview_${hash}_{{ test_id }}">
+                    <!-- Display the existing image if available -->
+                    <img src="/static/images/image_${hash}_{{ test_id }}.jpeg" alt="*JPG, *png only"  style="max-width: 100%; max-height: 100px;">
+
+
+                </div>
+                
+                <br>
+                <label for="options-container_${questionCount_}">Options:</label>
+                <div id="options-container_${questionCount_}">
+                    <input type="text" class='custom-option' name="option_text_${questionCount_}_1" required>
+                    <input type="checkbox" name="correct_option_${questionCount_}[]" value="1" checked onchange="handleOptionChange(${questionCount_})"> Option 1
+                    <br>
+                </div>
+                <button type="button" class="btn btn-outline-dark" onclick="addOption(${questionCount_}, '{{ test_id }}')">Add Option</button>
+                <button type="button" class="btn btn-outline-dark"  onclick="removeQuestion(${questionCount_}, '${hash}', '{{ test_id }}')"">Remove Question</button>
+                <button type="button" class="btn btn-outline-dark"  onclick="saveQuestion('{{ test_id }}')">Save all / upload files</button>
+        
+            </div>
+        </div>
+            <br>
+        `;
+
+        questionForm.appendChild(newQuestion);
+        
+        // Post JSON data to API immediately when adding a question
+        //postJSONData('{{ test_id }}');
+    }
+
+
+        function saveQuestion(test_id) {
+            showLoadingSpinner();
+            postJSONData(test_id);
+            isreload = true;
+        }
+       
+
+        function addOption(questionNumber, test_id) {
+            const optionsContainer = document.getElementById(`options-container_${questionNumber}`);
+            console.log(optionsContainer.children.length);
+            let optionCount = optionsContainer.children.length - 1;
+            if (edit === true){
+                optionCount = (optionsContainer.children.length + 1);
+            }
+            const newOption = document.createElement('div');
+            newOption.innerHTML = `
+                <input type="text" class='custom-option' name="option_text_${questionNumber}_${optionCount}" required>
+                <input type="checkbox" name="correct_option_${questionNumber}[]" value="${optionCount}"> Option ${optionCount}
+                <br>
+            `;
+            optionsContainer.appendChild(newOption);
+    
+            // Post JSON data to API immediately when adding an option
+            postJSONData(test_id);
+        }
+        
+        function removeQuestion(questionNumber, hash_, test_id) {
+            showLoadingSpinner()
+            const headers = new Headers({
+                'Authorization': `Bearer ${jwtToken}`
+            });
+            fetch(`http://localhost:5001/question_post_delete?hash=${hash_}`, {
+                method: 'POST',
+                headers: headers,
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoadingSpinner()
+                console.log('Data received from API:', data);
+                if (data.error) {
+                showSuccessMessage(data.error);
+                setTimeout(() => {
+                    hideSuccessMessage();
+                    window.location.reload();
+                }, 3000);
+                }
+                if (! data.error) {
+                window.location.reload();
+                }
+                    const questionElement = document.getElementById(`question_${questionNumber}`);
+                    questionElement.remove();
+        
+                    // Post JSON data to API immediately when removing a question
+                   // postJSONData(test_id);
+              
+            })
+            .catch(error => {
+                window.location.href = '/signin?next=/editquestion/' + testid + '/' + userid;
+                console.error('Error receiving data from API:', error);
+            });
+            //console.log(hash_)
+           
+
+        }
+        function postJSONData(test_id) {
+            const formData = new FormData(document.getElementById('questionForm'));
+            const jsonData = {};
+
+            formData.forEach((value, key) => {
+                if (!jsonData[key]) {
+                    jsonData[key] = value;
+                } else {
+                    if (!Array.isArray(jsonData[key])) {
+                        jsonData[key] = [jsonData[key]];
+                    }
+                    jsonData[key].push(value);
+                }
+            });
+            
+            //jsonData['test_id'] = '2f042eda-f44f-4b7d-bf02-87f994ea7776';
+            jsonData['test_id'] = test_id;
+            const headers = new Headers({
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtToken}`
+            });
+            // Send JSON data to your API using fetch or another method
+            fetch('http://localhost:5001/question_post', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(jsonData),
+            })
+            .then(response =>  response.json()
+            )
+            .then(data => {
+                hideLoadingSpinner();
+                if (data.message){
+                showSuccessMessage(data.message);
+                
+                if (isreload === true) {
+                    document.getElementById('upload').click();
+                }
+                }
+                if (data.error){
+                    showSuccessMessage(data.error);
+                    }
+
+                // Hide the success message after a few seconds
+                setTimeout(() => {
+                    hideSuccessMessage();
+                }, 3000);
+                if (data.msg === "Token has expired") {
+                    window.location.href = '/signin?next=/editquestion/' + testid + '/' + userid;
+                }
+                console.log('Data sent to API:', data);
+            })
+            .catch(error => {
+                hideLoadingSpinner();
+               window.location.href = '/signin?next=/editquestion/' + testid + '/' + userid;
+                console.error('Error sending data to API:', error);
+            });
+        }
+        function showLoadingSpinner() {
+            document.getElementById('overlay').style.display = 'flex';
+        }
+    
+        function hideLoadingSpinner() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+        function showSuccessMessage(text) {
+          message =  document.getElementById('successMessage');
+          message.innerHTML = text;
+          message.style.display = 'block';
+        
+        }
+        
+        function hideSuccessMessage() {
+            document.getElementById('successMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - MyTestCompanion</title>
+    <!-- Add Bootstrap CSS link here -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        footer {
+            background-color: #34495e;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div style="float: left;">
+        <h4> Features </h4>
+        </div>
+        <div style="float: right;">
+            <a href="{{ url_for('home') }}" class="signout">  <i class="fa fa-home" aria-hidden="true"></i> Home</a>  
+                        {% if  current_user.is_authenticated %} 
+        
+                        <a href="{{ url_for('logout') }}"  class="signout" style="padding: 8px"><i class="fa fa-sign-out" aria-hidden="true"></i>Sign out</a>
+                        <a href="{{ url_for('mainboard', user_id=current_user.userid) }}" class="signout" ><i class="fa fa-tasks" aria-hidden="true"></i> Dashboard</a>   
+                           {% endif %}
+                </div>
+     </header>
+
+    <div class="container">
+        <br>
+
+        <div class="card-deck">
+            <div class="card">
+                <img class="card-img-top" src="/static/images/user.png" style="max-height: 230px;" alt="Feature 1">
+                <div class="card-body">
+                    <h5 class="card-title">User management and security</h5>
+                    <p class="card-text">Description of the first feature goes here.</p>
+                </div>
+            </div>
+            <div class="card">
+                <img class="card-img-top" src="/static/images/test.png" style="max-height: 230px;" alt="Feature 2">
+                <div class="card-body">
+                    <h5 class="card-title">Candidate/Applicant test management</h5>
+                    <p class="card-text">Description of the second feature goes here.</p>
+                </div>
+            </div>
+            <div class="card">
+                <img class="card-img-top" src="/static/images/email.jpg" alt="Feature 3">
+                <div class="card-body">
+                    <h5 class="card-title">Seamless Communication</h5>
+                    <p class="card-text">Description of the third feature goes here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Add Bootstrap JS and Popper.js links here -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+
+</html>

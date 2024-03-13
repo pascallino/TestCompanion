@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Reminder and Login Details</title>
+</head>
+
+<body style="font-family: Arial, sans-serif;">
+
+    <h1 style="color: #3498db;"> {{ testname|escape }}</h1>
+
+    <p>Hello {{ applicantname|escape }},</p>
+
+    <p>We hope this message finds you well. This is a friendly reminder regarding your upcoming test at <strong>{{ company|escape }}</strong> located at <strong>{{ companyAddress|escape }}</strong>.</p>
+
+    <div>
+        <strong>Test Details:</strong>
+        <ul>
+            <li>Company: <span style="color: #362ecc;"><b>{{ yourCompanyName|escape }}</b></span></li>
+            <li>Address: <span style="color: #362ecc;"><b>{{ companyAddress|escape }}</b></span></li>
+            <li>Test date: <span style="color: #362ecc;"><b>{{ testdate|escape }}</b></span></li>
+            <li>Test duration: <span style="color: #362ecc;"><b>{{ duration|escape }} minutes</b></span></li>
+            <li>Company URL: <span style="color: #362ecc;"><b>{{ companyUrl|escape }}</b></span></li>
+        </ul>
+    </div>
+
+    <div>
+        <strong>Login Details:</strong>
+        <ul>
+            <li>User ID: <span style="color: #e74c3c;">{{ user_id|escape }}</span></li>
+            <li>Secret Key: <span style="color: #e74c3c;">{{ key|escape }}</span></li>
+        </ul>
+    </div>
+
+    <p>Make sure to use the provided User ID and App Key for logging in to take the test. You will be taking the test at the company's address or test venue mentioned above.</p>
+
+    <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
+
+    <p>We look forward to your participation in the test. Good luck!</p>
+
+    <p>Best regards,<br>{{ admin_name|escape }}</p>
+
+</body>
+
+</html>
