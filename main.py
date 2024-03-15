@@ -8,7 +8,7 @@ from reportlab.pdfgen import canvas
 from sqlalchemy.orm import aliased
 import hashlib
 from datetime import timedelta
-from sqlalchemy import asc, desc
+from sqlalchemy import asc, desc, and_
 from datetime import datetime
 from config import Config
 from uuid  import uuid4
@@ -1116,13 +1116,21 @@ def validate_and_format_datetime(date, time):
         return combined_datetime
     except ValueError:
         return None
-@app.route('/dashboard/<user_id>', methods=['GET'])
+@app.route('/dashboard/<user_id>', methods=['GET', 'POST'])
 @login_required
 def dashboard(user_id):
     # get the company id through the user id
     #use it to filter all users for the company
     count = 1
-    test = Test.query.filter_by(userid=user_id).order_by(desc(Test.created))
+    q_param = request.form.get('q')
+    if q_param == 'date' and request.form['start-date'] != '' and request.form['end-date'] != '':
+        start_date = datetime.strptime(request.form['start-date'], '%Y-%m-%d')
+        end_date = datetime.strptime(request.form['end-date'], '%Y-%m-%d')
+        test = Test.query.filter_by(userid=user_id)\
+            .filter(and_(Test.created >= start_date, Test.created <= end_date))\
+            .order_by(Test.created.desc())
+    else:
+        test = Test.query.filter_by(userid=user_id).order_by(desc(Test.created))
     if not test:
         return jsonify({'error': 'Unauthorized User'}), 401
     user = User.query.filter_by(userid=user_id).first()
