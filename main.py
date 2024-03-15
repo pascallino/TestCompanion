@@ -59,7 +59,7 @@ class Test(db.Model):
     test_name = db.Column(db.String(255), nullable=False)
     test_id = db.Column(db.String(128), nullable=False, unique=True)
     created = db.Column(db.DateTime, default=datetime.now())
-    userid = db.Column(db.String, db.ForeignKey('user.userid'), nullable=False)
+    userid = db.Column(db.String(128), db.ForeignKey('user.userid'), nullable=False)
     questions = db.relationship('Question', backref='test', lazy=True)
     teststats = db.relationship('Teststat', backref='test', lazy=True)
     
@@ -69,7 +69,7 @@ class Test(db.Model):
 
 class Teststat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    test_id = db.Column(db.String, db.ForeignKey('test.test_id'), nullable=False)
+    test_id = db.Column(db.String(128), db.ForeignKey('test.test_id'), nullable=False)
     test_day_id = db.Column(db.String(128), nullable=False, unique=True)
     test_date = db.Column(db.DateTime, nullable=False)
     duration = db.Column(db.Integer, default=0)
@@ -87,7 +87,7 @@ class Applicanttest(db.Model):
     fullname = db.Column(db.String(255), nullable=False)
     user_id = db.Column(db.String(128), nullable=False)
     #test_date = db.Column(db.DateTime, nullable=False)
-    test_day_id = db.Column(db.String, db.ForeignKey('teststat.test_day_id'), nullable=False)
+    test_day_id = db.Column(db.String(128), db.ForeignKey('teststat.test_day_id'), nullable=False)
     secret_key = db.Column(db.String(128), nullable=False)
     started = db.Column(db.Boolean, default=False)
     start_date = db.Column(db.DateTime, nullable=True)
@@ -126,7 +126,7 @@ class Question(db.Model):
     question_id = db.Column(db.String(128), nullable=False, unique=True)
     Qnum = db.Column(db.Integer, nullable=True)
     correct_answer = db.Column(db.String(128), nullable=True)
-    test_id = db.Column(db.String, db.ForeignKey('test.test_id'), nullable=False)
+    test_id = db.Column(db.String(128), db.ForeignKey('test.test_id'), nullable=False)
     image_path = db.Column(db.String(255), nullable=True)
     options = db.relationship('Option', backref='question', lazy=True)
 
@@ -139,7 +139,7 @@ class Option(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(255), nullable=False)
     Opnum = db.Column(db.Integer, nullable=False)
-    question_id = db.Column(db.String, db.ForeignKey('question.question_id'), nullable=False)
+    question_id = db.Column(db.String(128), db.ForeignKey('question.question_id'), nullable=False)
 
 class Company(db.Model):
     id = db.Column(db.Integer, primary_key=True)

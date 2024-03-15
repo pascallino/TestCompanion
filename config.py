@@ -8,5 +8,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = "7JNJHGHjhhjjFF"
     UPLOAD_FOLDER = base_url
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(base_url, 'Database.db')
+    password = 'TestCompanion'
+    db = f'mysql+pymysql://TestCompanion:{password}@localhost:3306/TestCompanion'
+    SQLALCHEMY_DATABASE_URI = db
+    #SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(base_url, 'Database.db')
 

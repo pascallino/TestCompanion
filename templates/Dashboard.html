@@ -57,17 +57,34 @@
 
     <div class="container mt-5">
         <h2 class="mb-4">Hi - {{ user.last_name }}</h2>
-
+         
+        <form action="/process_date_range" method="post">
+        <div class="row mb-2">
+           
+            <div class="col-md-2">
+            <input type="date" placeholder="Start Date" class="form-control" name="start-date" id="start-date">
+            </div>
+            <div class="col-md-2">
+                <input type="date" class="form-control" name="end-date" id="end-date">
+            </div>
+            <div class="col-md-2">
+                
+                <button type="submit" class="btn btn-outline-secondary mb-4">Search</button>
+            </div>
+        </div>
+        
+    </form>
+    <br>
         <!-- Create Test Button -->
         <button type="button" class="btn btn-outline-secondary mb-4" data-bs-toggle="modal" data-bs-target="#createTestModal">
             Create Test
         </button>
 
         <!-- Test List Table -->
-        <br><br>
+        <br>
         {% if not pages.items %}
         no records found
-        <br>
+        
         {% endif %}
         <div class="table-responsive">
             <table class="table table-bordered">
