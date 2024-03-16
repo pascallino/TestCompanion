@@ -123,7 +123,11 @@
         $('#question-text').text(questionData.Question);
         console.log(questionData.imageurl);
         if (questionData.imageurl) {
+            $('#image-text').show();
             $('#image-text').attr('src', questionData.imageurl);
+        }else
+        {
+            $('#image-text').hide();
         }
         // Update options
         let optionsContainer = $('#options-container');

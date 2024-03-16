@@ -423,10 +423,18 @@ Profile dashboard
         var email = document.getElementById('email').value;
         var oldpassword= document.getElementById('oldpassword').value;
         var newpassword = document.getElementById('newpassword').value;
-        if (oldpassword != '' || newpassword != '') {
+        if (oldpassword === '' || newpassword === '') {
+            if (oldpassword === '') {
+                document.getElementById('oldpassword').focus();
+            }else {
+                document.getElementById('newpassword').focus();
+            }
+            alert('Password fields cannt be empty')
             document.getElementById('oldpassword').classList.add('required');
             document.getElementById('newpassword').classList.add('required');    
+        return;
         }
+
     
     showLoadingSpinner();
         fetch('/saveprofile/' + userId, {

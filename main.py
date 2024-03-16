@@ -823,7 +823,7 @@ def signin_post():
     user = User.query.filter_by(email=email).first()
     if not user:
         return jsonify({"message": "Invalid username or password"}), 401
-    com = Company.query.filter_by(companyid=user.company_id).first()
+    com = Company.query.filter_by(companyid=current_user.company_id).first()
     if not user or user.password != password_ or com.confirm != True:
         return jsonify({"message": "Invalid username or password"}), 401
     
@@ -939,7 +939,9 @@ def computescore(test_day_id):
                         teststat.status = 'taken'
                     db.session.commit()
                     try:
-                        send_test_mail(test_day_id, applicant.user_id)
+                        run_time = datetime.now() + timedelta(seconds=10) 
+                        scheduler.add_job(id=f'send_test_mail{test_day_id}', func=send_test_mail, args=(test_day_id, applicant.user_id), trigger='date', run_date=run_time)
+                        # send_test_mail(test_day_id, applicant.user_id)
                     except:
                         return jsonify({'message': 'INFO: An error occured while sending mail to ' + applicant.user_email + 'please try again or check that the email is correct'})
     return jsonify({'message': 'All Scores computed successlfully'})
@@ -1280,6 +1282,7 @@ def resendmailpost(test_day_id, user_id):
     user = User.query.filter_by(userid=user_id).first()
     if not user:
         return jsonify({'error': 'Unauthorized user'})
+    com = Company.query.filter_by(companyid=current_user.company_id).first()
     teststat = Teststat.query.filter_by(test_day_id=test_day_id).first()
     if not teststat:
         return jsonify({'error': 'Unauthorized user'})
@@ -1299,7 +1302,7 @@ def resendmailpost(test_day_id, user_id):
                 run_time = datetime.now() + timedelta(seconds=7) 
                 # send_applicantmail(email, fullname, formatted_datetime, duration, test.test_name, 'sample company', 'Test lab',
                 #                user.email, user.first_name, applicant.user_id, applicant.secret_key)
-                scheduler.add_job(id=f'send_applicantmail{email}', func=send_applicantmail, args=(email, fullname, teststat.test_date, teststat.duration, test.test_name, 'sample company', 'Test lab',
+                scheduler.add_job(id=f'send_applicantmail{email}', func=send_applicantmail, args=(email, fullname, teststat.test_date, teststat.duration, test.test_name, com.company_name, com.company_address,
                                 user.email, user.first_name, applicant.user_id, applicant.secret_key), trigger='date', run_date=run_time)
 
                 db.session.commit()
@@ -1334,6 +1337,7 @@ def Addtestuserpost(test_id, user_id):
     user = User.query.filter_by(userid=user_id).first()
     if not user:
         return jsonify({'error': 'Unauthorized user'})
+    com = Company.query.filter_by(companyid=current_user.company_id).first()
     test = Test.query.filter_by(test_id=test_id).first()
     if not test:
         return jsonify({'error': 'Unauthorized user'})
@@ -1363,7 +1367,7 @@ def Addtestuserpost(test_id, user_id):
                 run_time = datetime.now() + timedelta(seconds=7) 
                 # send_applicantmail(email, fullname, formatted_datetime, duration, test.test_name, 'sample company', 'Test lab',
                 #                user.email, user.first_name, applicant.user_id, applicant.secret_key)
-                scheduler.add_job(id=f'send_applicantmail{email}', func=send_applicantmail, args=(email, fullname, formatted_datetime, duration, test.test_name, 'sample company', 'Test lab',
+                scheduler.add_job(id=f'send_applicantmail{email}', func=send_applicantmail, args=(email, fullname, formatted_datetime, duration, test.test_name, com.company_name, com.company_address,
                                 user.email, user.first_name, applicant.user_id, applicant.secret_key), trigger='date', run_date=run_time)
                 db.session.commit()
             except Exception as e:
@@ -1452,37 +1456,40 @@ def rescheduletestpost(test_day_id):
         # return redirect(url_for('rescheduletestget', test_day_id=test_day_id))
         return jsonify({'message': 'Test Rescheduled successfully'})
 def send_test_mail(test_day_id, user_id):
-    applicant = Applicanttest.query.filter_by(user_id=user_id).first()
-    teststat = Teststat.query.filter_by(test_day_id=test_day_id).first()
-    test = Test.query.filter_by(test_id=teststat.test_id).first()
-    recipient_email = applicant.user_email
-    # username = "John Doe"
-    # company = "Sample Company"
-    yourCompanyName = "Sample Company"
-    companyAddress = "123 Main Street, Cityville"
-    testScore = applicant.score
-    testName = test.test_name
-    html_content = render_template('testsubmitted.html', yourCompanyName=yourCompanyName, companyAddress=companyAddress,
-                                    testName=testName, testScore=testScore, applicant=applicant.fullname)
-    recipients = [recipient_email, 'pascallino90@gmail.com']
-    mailstat = get_mail_status()
-    if mailstat and mailstat.active == 'Yes':
-        app.config['MAIL_SERVER'] = mailstat.mail_server
-        app.config['MAIL_PORT'] = mailstat.mail_port
-        app.config['MAIL_USE_TLS'] = mailstat.mail_use_tls
-        app.config['MAIL_USE_SSL'] = mailstat.mail_use_ssl
-        app.config['MAIL_USERNAME'] = mailstat.username
-        app.config['MAIL_PASSWORD'] = mailstat.password
-    else:
-        app.config['MAIL_SERVER'] = 'smtp.mail.yahoo.com'
-        app.config['MAIL_PORT'] = 587
-        app.config['MAIL_USE_TLS'] = True
-        app.config['MAIL_USE_SSL'] = False
-        app.config['MAIL_USERNAME'] = 'luvpascal.ojukwu@yahoo.com'
-        app.config['MAIL_PASSWORD'] = 'nvfolnadxvdepvxk'
-    mail = Mail(app)
-    msg = Message(testName +' GRADED', sender='luvpascal.ojukwu@yahoo.com', recipients=recipients, html=html_content)
-    mail.send(msg)
+    with app.app_context():
+        applicant = Applicanttest.query.filter_by(user_id=user_id).first()
+        teststat = Teststat.query.filter_by(test_day_id=test_day_id).first()
+        test = Test.query.filter_by(test_id=teststat.test_id).first()
+        user = User.query.filter_by(userid=user_id).first()
+        com = Company.query.filter_by(companyid=current_user.company_id).first()
+        recipient_email = applicant.user_email
+        # username = "John Doe"
+        # company = "Sample Company"
+        yourCompanyName = com.company_name
+        companyAddress = com.company_address
+        testScore = applicant.score
+        testName = test.test_name
+        html_content = render_template('testsubmitted.html', yourCompanyName=yourCompanyName, companyAddress=companyAddress,
+                                        testName=testName, testScore=testScore, applicant=applicant.fullname)
+        recipients = [recipient_email, 'pascallino90@gmail.com']
+        mailstat = get_mail_status()
+        if mailstat and mailstat.active == 'Yes':
+            app.config['MAIL_SERVER'] = mailstat.mail_server
+            app.config['MAIL_PORT'] = mailstat.mail_port
+            app.config['MAIL_USE_TLS'] = mailstat.mail_use_tls
+            app.config['MAIL_USE_SSL'] = mailstat.mail_use_ssl
+            app.config['MAIL_USERNAME'] = mailstat.username
+            app.config['MAIL_PASSWORD'] = mailstat.password
+        else:
+            app.config['MAIL_SERVER'] = 'smtp.mail.yahoo.com'
+            app.config['MAIL_PORT'] = 587
+            app.config['MAIL_USE_TLS'] = True
+            app.config['MAIL_USE_SSL'] = False
+            app.config['MAIL_USERNAME'] = 'luvpascal.ojukwu@yahoo.com'
+            app.config['MAIL_PASSWORD'] = 'nvfolnadxvdepvxk'
+        mail = Mail(app)
+        msg = Message(testName +' GRADED', sender='luvpascal.ojukwu@yahoo.com', recipients=recipients, html=html_content)
+        mail.send(msg)
 
 
 @app.route('/Timeout/<test_day_id>/<user_id>', methods=['GET'])
