@@ -97,6 +97,15 @@
             var email = document.getElementById('email').value;
             var password = document.getElementById('password').value;
             var remember = document.getElementById('remember').checked;
+            if (email === '' || password === '') {
+                message =  document.getElementById('successMessage');
+                message.style.backgroundColor = "red";
+                showSuccessMessage('Please fill all fields correctly')
+                setTimeout(() => {
+                    hideSuccessMessage();
+                }, 8000);
+                return;
+            }
             var currentUrl = window.location.href;
 
             // Get the value of the 'next' parameter

@@ -41,6 +41,12 @@
                         <div class="mb-3">
                             <p class="fw-bold">Q{{ loop.index }}:</p>
                             <p class="card-text"> {{ question.text }}</p>
+                            {% if question.imageurl %} 
+                            <p class="card-text">
+                                <!-- Display the existing image if available -->
+                                <img src="{{ question.imageurl }}" alt="" id="image-text" class="img-fluid" style="max-height: 900px;">
+                             </p>
+                             {% endif %}
                             <p class="card-text {% if question.point == 1 %}green-point{% else %}red-point{% endif %}">
                              <b>  Point: {{ question.point }}</b> 
                             </p>

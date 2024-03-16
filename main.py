@@ -8,7 +8,7 @@ from reportlab.pdfgen import canvas
 from sqlalchemy.orm import aliased
 import hashlib
 from datetime import timedelta
-from sqlalchemy import asc, desc, and_
+from sqlalchemy import asc, desc, and_, or_
 from datetime import datetime
 from config import Config
 from uuid  import uuid4
@@ -612,7 +612,7 @@ def saveuser(user_id):
         })
         
 
-@app.route('/userboard/<user_id>', methods=['GET'])
+@app.route('/userboard/<user_id>', methods=['GET', 'POST'])
 @login_required
 def userboard(user_id):
     count = 1
@@ -621,7 +621,15 @@ def userboard(user_id):
         return jsonify({'error': 'Unauthorized User'}), 401
     if u.role == 'user':
         return jsonify({'error': 'Unauthorized User'}), 401
-    user = User.query.filter(User.email != u.email).order_by(desc(User.created))
+    q_param = request.form.get('q')
+    if q_param == 'name' and request.form['name'] != '':
+        q = request.form['name']
+        user = User.query.filter(
+                (User.email != u.email) &
+                (or_(User.first_name.contains(q), User.last_name.contains(q)))
+                ).order_by(desc(User.created))
+    else:
+        user = User.query.filter(User.email != u.email).order_by(desc(User.created))
     if not user:
         return jsonify({'error': 'Unauthorized User'}), 401
     u = User.query.filter_by(userid=user_id).first()
@@ -962,12 +970,26 @@ def testsummary(test_id, test_day_id, user_id):
                 status = 'Completed'
             ques = Question.query.filter_by(question_id=uq.question_id).first()
             if ques:
+                imageurl = None
+                base_url = os.path.dirname(os.path.abspath(__name__))
+                imagstagjpeg = f'image_{ques.question_id}_{test.test_id}.jpeg'
+                imagstagpng = f'image_{ques.question_id}_{test.test_id}.png'
+                imagstagjpg = f'image_{ques.question_id}_{test.test_id}.jpg'
+                img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
+                img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
+                img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
+                k = [img_path1, img_path2, img_path3]
+                for path in k:
+                    if os.path.exists(path):
+                        path = path.split('/')[1:]
+                        imageurl = '/' + path[1] + '/' + path[2] + '/' + path[3] 
+                        break
                 question_text = ques.text
                 question_point = 0
                 if sorted(uq.answer_chosen) == sorted(ques.correct_answer):
                     correct_answers += 1
                     question_point = 1
-                questions_data.append({'text': question_text, 'point': question_point})
+                questions_data.append({'text': question_text, 'point': question_point, 'imageurl': imageurl})
 
         applicant_data.append({
             'name': app.fullname,

@@ -6,15 +6,31 @@ User dashboard
 
 {% block contents %}
 <div class="container mt-3">
+    <form action="./{{ user_id }}" method="post">
+        <div class="row mb-2">
+            <input type="hidden" name="q" value="name">
+            <div class="col-md-2">
+                <input type="text" class="form-control" name="name" id="name" placeholder="Enter name">
+            </div>
+            
+            <div class="col-md-2">
+                
+                <button type="submit" class="btn btn-outline-secondary mb-4" id='search'>Search</button>
+            </div>
+        </div>
+        
+    </form>
+    <br>
+
     <!-- Create Test Button -->
     <button type="button" class="btn btn-outline-secondary mb-4" data-bs-toggle="modal" data-bs-target="#createUserModal">
         Create User
     </button>
     <!-- Test List Table -->
-    <br><br>
+    <br>
     {% if not pages.items %}
     no records found
-    <br>
+
     {% endif %}
     <div class="table-responsive">
         <table class="table table-bordered">
@@ -317,6 +333,7 @@ User dashboard
                 // Refresh the current page on success
                 //console.log(data);
                 location.reload();
+                document.getElementById('search').click();
                 
             } else {
                 console.error('Error:', data.error);
@@ -390,7 +407,7 @@ showLoadingSpinner();
             // Refresh the current page on success
             //console.log(data);
             location.reload();
-            
+            document.getElementById('search').click();
         } else {
             console.error('Error:', data.message);
             // Handle error as needed
@@ -439,11 +456,12 @@ function deleteuser(user_id)
                 // Hide the success message after a few seconds
                 setTimeout(() => {
                     hideSuccessMessage();
-                }, 3000);
-                if (data.status === 'success') {
-                    // Refresh the current page on success
-                    //console.log(data);
                     location.reload();
+                }, 3000);
+
+                if (data.status === 'success') {
+                    location.reload();
+                    document.getElementById('search').click();
                 } else {
                     console.error('Error:', data.message);
                     // Handle error as needed
