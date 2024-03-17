@@ -248,6 +248,25 @@ def signin():
     logout_user()
     return render_template('Signin.html')
 
+@app.route('/sendcontactform', methods=['POST'])
+def sendcontactform():
+    app.config['MAIL_SERVER'] = 'smtp.mail.yahoo.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
+    app.config['MAIL_USERNAME'] = 'luvpascal.ojukwu@yahoo.com'
+    app.config['MAIL_PASSWORD'] = 'nvfolnadxvdepvxk'
+    mail = Mail(app)
+    json_data = request.json
+    body = f"{json_data['message']} \n\nEmail: {json_data['email']}\n\nRegards,\n{json_data['name']} "
+    msg = Message('Customer Mail', sender='luvpascal.ojukwu@yahoo.com', recipients=['luvpascal.ojukwu@yahoo.com'],body=body)
+    mail.send(msg)
+    response_data = {
+                'status': 'success',
+                'message': 'Thank you for reaching out to us, we have received your message, we will get in touch with you soon'
+            }
+
+    return jsonify(response_data), 200
 
 @app.route('/profileboard/<user_id>', methods=['GET'])
 @login_required
@@ -823,7 +842,7 @@ def signin_post():
     user = User.query.filter_by(email=email).first()
     if not user:
         return jsonify({"message": "Invalid username or password"}), 401
-    com = Company.query.filter_by(companyid=current_user.company_id).first()
+    com = Company.query.filter_by(companyid=user.company_id).first()
     if not user or user.password != password_ or com.confirm != True:
         return jsonify({"message": "Invalid username or password"}), 401
     
@@ -1146,6 +1165,10 @@ def dashboard(user_id):
     # get the company id through the user id
     #use it to filter all users for the company
     count = 1
+    start_date = ''
+    end_date = ''
+    ed = None
+    sd = None
     q_param = request.form.get('q')
     if q_param == 'date' and request.form['start-date'] != '' and request.form['end-date'] != '':
         start_date = datetime.strptime(request.form['start-date'], '%Y-%m-%d')
@@ -1153,6 +1176,8 @@ def dashboard(user_id):
         test = Test.query.filter_by(userid=user_id)\
             .filter(and_(Test.created >= start_date, Test.created <= end_date))\
             .order_by(Test.created.desc())
+        sd = request.form['start-date']
+        ed = request.form['end-date']
     else:
         test = Test.query.filter_by(userid=user_id).order_by(desc(Test.created))
     if not test:
@@ -1178,10 +1203,8 @@ def dashboard(user_id):
         if count <= 0:
             count = 1
         pages = test.paginate(page=count, per_page=3)
-
-    
     return render_template('Dashboard.html', test=test, i=0, pages=pages,
-                           companyname='', user=user, users=users, user_id=user_id)
+                           companyname='', user=user, users=users, user_id=user_id, sd=sd, ed=ed)
 
 @app.route('/applicant/<test_day_id>', methods=['GET'])
 def applicant(test_day_id):

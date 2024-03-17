@@ -63,10 +63,18 @@
         <div class="row mb-2">
             <input type="hidden" name="q" value="date">
             <div class="col-md-2">
-            <input type="date" placeholder="Start Date" class="form-control" name="start-date" id="start-date">
-            </div>
+                {% if sd  %}
+            <input type="date" placeholder="Start Date" class="form-control" name="start-date"  id="start-date">
+           {% else %}
+           <input type="date" placeholder="Start Date" class="form-control" name="start-date" id="start-date">
+            {% endif %}
+        </div>
             <div class="col-md-2">
+                {% if ed %}
+                <input type="date" class="form-control" name="end-date"  id="end-date">
+                {% else %}
                 <input type="date" class="form-control" name="end-date" id="end-date">
+                {% endif %}
             </div>
             <div class="col-md-2">
                 
@@ -185,10 +193,20 @@
         // Get today's date
         const today = new Date();
         const todayDate = today.toISOString().split('T')[0];
-        
-        // Set the default value for the date input
+        sd = '{{ sd }}';
+        ed = '{{ ed }}';
         document.getElementById('start-date').value = todayDate;
         document.getElementById('end-date').value = todayDate;
+        if (sd != 'None') {
+            document.getElementById('start-date').value = sd;
+        }
+        //const endDate = new Date(today);
+        //endDate.setDate(endDate.getDate() + 1);
+        //const endDateString = endDate.toISOString().split('T')[0];
+        if (ed != 'None') {
+            document.getElementById('end-date').value = ed;
+        }
+        
     });
     let jwtToken = '';
     function getCookie(name) {

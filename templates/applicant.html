@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Criteria</title>
+    <title>Applicant test criteria page</title>
        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -32,16 +32,16 @@
 </head>
 <body>
     <div class="container">
+        <h5 class="mt-4 mb-4">   <p><b> Test Duration: {{ duration }} minutes</b></p></h5>
         <h5 class="mt-4 mb-4">
  <p> <b>Follow Instructions Carefully, read and adhere to all instructions provided below before taking the test.
          
-</b></p><p> Test Duration: {{ duration }} minutes</p>
+</b></p>
         </h5>
         <hr>
         
         <ul>
               
-            <li>Time Management: Manage your time wisely to ensure completion of all sections within the allocated time.</li>
             <li>Check Your Work: Review your responses for errors or omissions before submitting. Attention to detail is important.</li>
             <li>Respect Time Limits: Adhere to time limits for each section to ensure fairness and consistency.</li>
             <li>Ask for Clarification: If any instructions or questions are unclear, seek clarification from the test administrator.</li>
@@ -59,13 +59,13 @@
         <form>
             <div class="form-group">
                 <label for="user_id"><b>User ID:</b></label>
-                <input type="text" class="form-control" id="user_id" placeholder="Enter user ID sent in your mail" name="user_id" required>
+                <input type="text" class="form-control" id="user_id" placeholder="Enter user ID sent in your mail"   name="user_id" required>
             </div>
             <div class="form-group">
-                <label for="secret_key">Secret Key:</label>
-                <input type="password" class="form-control" id="secret_key" placeholder="Enter secret key" name="secret_key" required>
+                <label for="secret_key"><b>Secret Key:</b></label>
+                <input type="password" class="form-control" id="secret_key" placeholder="Enter secret key"   name="secret_key" required>
             </div>
-            <button type="button" class="btn btn-success" id="startButton" onclick="startTest()">Start Test</button>
+            <button type="button" class="btn btn-dark" id="startButton" onclick="startTest()">Start Test</button>
         </form>
     </div>
 
