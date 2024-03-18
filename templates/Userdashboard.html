@@ -6,20 +6,10 @@ User dashboard
 
 {% block contents %}
 <div class="container mt-3">
-    <form action="./{{ user_id }}" method="post">
-        <div class="row mb-2">
-            <input type="hidden" name="q" value="name">
-            <div class="col-md-2">
-                <input type="text" class="form-control" name="name" id="name" placeholder="Enter name">
-            </div>
-            
-            <div class="col-md-2">
-                
-                <button type="submit" class="btn btn-outline-secondary mb-4" id='search'>Search</button>
-            </div>
-        </div>
-        
-    </form>
+    <button type="button"  class="btn btn-outline-secondary mb-4" data-bs-toggle="modal" data-bs-target="#filterModal">
+        Filter
+    </button>
+    <br>
     <br>
 
     <!-- Create Test Button -->
@@ -27,6 +17,7 @@ User dashboard
         Create User
     </button>
     <!-- Test List Table -->
+  
     <br>
     {% if not pages.items %}
     no records found
@@ -85,7 +76,33 @@ User dashboard
     </ul>
 </nav>
 </div>
-
+<!-- filter  -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModal">Search by Names</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="./{{ user_id }}" method="post">
+                    <div class="row mb-6">
+                        <input type="hidden" name="q" value="name">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="name" id="name" placeholder="Enter name">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            
+                            <button type="submit" class="btn btn-outline-secondary mb-4" id='search'>Search</button>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Create user Modal -->
 <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">

@@ -1023,7 +1023,7 @@ def testsummary(test_id, test_day_id, user_id):
     return render_template('Testsummary.html', testname=test.test_name, test_id=test_id
                            ,test_day_id=test_day_id, user_id=user_id,  applicants=applicant_data, count=len(allapplicants))
 
-@app.route('/testlist/<test_id>', methods=['GET'])
+@app.route('/testlist/<test_id>', methods=['GET', 'POST'])
 @login_required
 def testlist(test_id):
     """test list."""
@@ -1032,7 +1032,26 @@ def testlist(test_id):
     end_date = ''
     ed = None
     sd = None
-    teststat = Teststat.query.filter_by(test_id=test_id).order_by(desc(Teststat.test_date))
+    du = None
+    q_param = request.form.get('q')
+    if q_param == 'date' and request.form['start-date'] != '' and request.form['end-date'] != '':
+        start_date = datetime.strptime(request.form['start-date'], '%Y-%m-%d')
+        end_date = datetime.strptime(request.form['end-date'], '%Y-%m-%d')
+        duration = request.form['duration']
+        if duration == '':
+            duration = 0
+        teststat = Teststat.query.filter_by(test_id=test_id) \
+                    .filter(
+                        (Teststat.test_date >= start_date) &
+                        (Teststat.test_date <= end_date) |
+                        (Teststat.duration == int(duration))
+                    ) \
+                    .order_by((Teststat.test_date.desc()))
+        sd = request.form['start-date']
+        ed = request.form['end-date']
+        du = request.form['duration']
+    else:
+        teststat = Teststat.query.filter_by(test_id=test_id).order_by(desc(Teststat.test_date))
     if not teststat:
         return jsonify({'error': 'Unauthorized User'}), 401
     test = Test.query.filter_by(test_id=test_id).first()
@@ -1058,7 +1077,7 @@ def testlist(test_id):
 
     
     return render_template('Testlist.html', teststat=teststat, i=0, pages=pages,
-                           test_id=test_id, testname=test.test_name, user_id=test.userid, sd=sd, ed=ed)
+                           test_id=test_id, testname=test.test_name, user_id=test.userid, sd=sd, ed=ed, du=du)
 
 
 @app.route('/login', methods=['GET'])
@@ -1878,9 +1897,13 @@ def uploadimages(test_id):
     response_data = {'status': 'success', 'message': 'Images uploaded successfully'}
     return jsonify(response_data)
 
+@app.route('/home', methods=['GET'])
+@app.route('/', methods=['GET'])
+def homepage():
+    return render_template('index.html')
 
-@app.route('/home', methods=['GET', 'POST'])
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/////home', methods=['GET', 'POST'])
+@app.route('//////', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         recipient_email = "pascallino90@gmail.com"

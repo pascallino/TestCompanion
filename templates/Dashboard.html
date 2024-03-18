@@ -57,33 +57,12 @@
 
     <div class="container mt-5">
         <h3 class="mb-4">Hi - {{ user.last_name }}</h3>
-
-         
-        <form action="./{{ user_id}}" method="post">
-        <div class="row mb-2">
-            <input type="hidden" name="q" value="date">
-            <div class="col-md-2">
-                {% if sd  %}
-            <input type="date" placeholder="Start Date" class="form-control" name="start-date"  id="start-date">
-           {% else %}
-           <input type="date" placeholder="Start Date" class="form-control" name="start-date" id="start-date">
-            {% endif %}
-        </div>
-            <div class="col-md-2">
-                {% if ed %}
-                <input type="date" class="form-control" name="end-date"  id="end-date">
-                {% else %}
-                <input type="date" class="form-control" name="end-date" id="end-date">
-                {% endif %}
-            </div>
-            <div class="col-md-2">
-                
-                <button type="submit" class="btn btn-outline-secondary mb-4" onclick="Search()">Search</button>
-            </div>
-        </div>
-        
-    </form>
-    <br>
+        <button type="button"  class="btn btn-outline-secondary mb-4" data-bs-toggle="modal" data-bs-target="#filterModal">
+            Filter
+        </button>
+        <br>
+        <br>
+    
         <!-- Create Test Button -->
         <button type="button" class="btn btn-outline-secondary mb-4" data-bs-toggle="modal" data-bs-target="#createTestModal">
             Create Test
@@ -157,6 +136,49 @@
         </ul>
     </nav>
     </div>
+
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModal">Search by Date</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add your form for creating a test here -->
+                    <form action="./{{ user_id }}" method="post">
+                        <div class="row mb-4">
+                            <input type="hidden" name="q" value="date">
+                            <div class="col-md-4">
+                                Start date:
+                                {% if sd  %}
+                            <input type="date" placeholder="Start Date" class="form-control" name="start-date"  id="start-date">
+                           {% else %}
+                           <input type="date" placeholder="Start Date" class="form-control" name="start-date" id="start-date">
+                            {% endif %}
+                        </div>
+                            <div class="col-md-4">
+                                End date:
+                                {% if ed %}
+                                <input type="date" class="form-control" name="end-date"  id="end-date">
+                                {% else %}
+                                <input type="date" class="form-control" name="end-date" id="end-date">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-outline-secondary mb-4" onclick="showLoadingSpinner()">Search</button>
+                            </div>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
 
 
     <!-- Create Test Modal -->

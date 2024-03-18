@@ -141,7 +141,7 @@ body {
                 </div>
                 <div class="modal-body">
                     <!-- Add your form for creating a test here -->
-                    <form action="./{{ user_id}}" method="post">
+                    <form action="./{{ test_id}}" method="post">
                         <div class="row mb-4">
                             <div class="col-md-4">
                                 Duration:
@@ -193,10 +193,14 @@ body {
         const todayDate = today.toISOString().split('T')[0];
         sd = '{{ sd }}';
         ed = '{{ ed }}';
+        du = '{{ du }}';
         document.getElementById('start-date').value = todayDate;
         document.getElementById('end-date').value = todayDate;
         if (sd != 'None') {
             document.getElementById('start-date').value = sd;
+        }
+        if (du != 'None') {
+            document.getElementById('duration').value = du;
         }
         //const endDate = new Date(today);
         //endDate.setDate(endDate.getDate() + 1);
