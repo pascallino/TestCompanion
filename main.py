@@ -1028,6 +1028,10 @@ def testsummary(test_id, test_day_id, user_id):
 def testlist(test_id):
     """test list."""
     count = 1
+    start_date = ''
+    end_date = ''
+    ed = None
+    sd = None
     teststat = Teststat.query.filter_by(test_id=test_id).order_by(desc(Teststat.test_date))
     if not teststat:
         return jsonify({'error': 'Unauthorized User'}), 401
@@ -1054,7 +1058,7 @@ def testlist(test_id):
 
     
     return render_template('Testlist.html', teststat=teststat, i=0, pages=pages,
-                           test_id=test_id, testname=test.test_name, user_id=test.userid)
+                           test_id=test_id, testname=test.test_name, user_id=test.userid, sd=sd, ed=ed)
 
 
 @app.route('/login', methods=['GET'])
