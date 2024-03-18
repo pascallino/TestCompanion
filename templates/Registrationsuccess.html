@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Confirmed</title>
+
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -48,6 +49,7 @@
             background-color: #2980b9;
         }
     </style>
+    <link rel="stylesheet" href="/static/styles/style.css">
 </head>
 
 <body>
@@ -57,10 +59,76 @@
 
         <a class="button" href="/signin" >Log In</a>
         <br><p>click below if you didn't get the verification email</p>
-        <a class="button" href="[Login Page Link]" >Resend mail</a>
+        <a class="button" href="#" onclick="resend_confirm_mail('{{ user_id }}')">Resend mail</a>
 
         <p>If you have any questions or need further assistance, please contact our support team.</p>
     </div>
+    <div id="overlay">
+        <div class="spinner"></div>
+    </div>
+    <div id="successMessage" style="display: none;"></div>
+    <script>
+        function resend_confirm_mail(userId) {
+            showLoadingSpinner();
+            fetch('/resend_confirm_mail/' + userId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'user_id': userId }), // Use userId instead of user_id
+            })
+            .then(response => {
+                if (!response.ok) {
+                    window.location.href = '/signin?next=/resend_confirm_mail/' + userId; // Fix the redirection URL
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideLoadingSpinner();
+                if (data.message) {
+                    showSuccessMessage(data.message);
+                }
+                if (data.error) {
+                    showSuccessMessage(data.error);
+                }
+    
+                // Hide the success message after a few seconds
+                setTimeout(() => {
+                    hideSuccessMessage();
+                }, 3000);
+                if (data.status === 'success') {
+                    // Refresh the current page on success
+                    // location.reload();
+                } else {
+                    console.error('Error:', data.message);
+                    // Handle error as needed
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle error as needed
+            });
+        }
+    
+        function showLoadingSpinner() {
+            document.getElementById('overlay').style.display = 'flex';
+        }
+    
+        function hideLoadingSpinner() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+    
+        function showSuccessMessage(text) {
+            document.getElementById('successMessage').innerText = text;
+            document.getElementById('successMessage').style.display = 'block';
+        }
+    
+        function hideSuccessMessage() {
+            document.getElementById('successMessage').style.display = 'none';
+        }
+    </script>
+    
+
 </body>
 
 </html>

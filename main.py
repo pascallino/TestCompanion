@@ -901,7 +901,19 @@ def testcompanion_confirm(user_id):
         except:
             return jsonify({'error': 'An error occured'})
     return jsonify({'error': 'link has expired'})
-        
+
+@app.route('/resend_confirm_mail/<user_id>', methods=['POST'])
+def resend_confirm_mail(user_id):
+    u = request.json
+    userid = u['user_id']
+    if userid  == '' or userid is None:
+        return jsonify({'error', 'Unauthorized user'}),  401
+    user = User.query.filter_by(userid=userid).first()
+    if user:
+        send_confirm_mail(user.email, 'luvpascal.ojukwu@yahoo.com', user.userid, user.last_name + ' ' + user.first_name)
+        return jsonify({'success': 'success', 'message': 'Confirmation mail sent'})
+
+
 def send_confirm_mail(recipient_email, admin_email, user_id, fullname):
     html_content = render_template('Confirmreg.html', user_id=user_id, fullname=fullname)
     recipients = [recipient_email, admin_email]
@@ -1900,32 +1912,6 @@ def uploadimages(test_id):
 @app.route('/home', methods=['GET'])
 @app.route('/', methods=['GET'])
 def homepage():
-    return render_template('index.html')
-
-@app.route('/////home', methods=['GET', 'POST'])
-@app.route('//////', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        recipient_email = "pascallino90@gmail.com"
-        username = "John Doe"
-        company = "Sample Company"
-        companyName = "Sample Company"
-        companyAddress = "123 Main Street, Cityville"
-        appointmentTime = "2022-03-01 10:00 AM"
-        companyUrl = "http://www.example.com"
-        appKey = "uniqueAppKey"
-        yourCompanyName = "Your Company"
-
-        html_content = render_template('email_template.html', username=username, company=company,
-                                       companyName=companyName, companyAddress=companyAddress,
-                                       appointmentTime=appointmentTime, companyUrl=companyUrl,
-                                       appKey=appKey, yourCompanyName=yourCompanyName)
-
-        msg = Message(EMAIL_SUBJECT, sender='luvpascal.ojukwu@yahoo.com', recipients=[recipient_email], html=html_content)
-        mail.send(msg)
-
-        return "Email sent successfully!"
-
     return render_template('index.html')
 
 if __name__ == '__main__':
