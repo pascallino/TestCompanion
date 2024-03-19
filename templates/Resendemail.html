@@ -77,13 +77,14 @@
 <body>
     <header>
         <div style="float: left;">
-        <h4> More Users/Resend Test Mail </h4>
+            <h4> <a href="{{ url_for('mainboard', user_id=user_id) }}" class="signout" style="padding: 12px">
+                <span style="font-size: 25px;">  Dashboard / Resend Test Mail</span></a>     </h4> 
         </div>
         <div style="float: right;">
-            <a href="{{ url_for('home') }}" class="signout">  <i class="fa fa-home" aria-hidden="true"></i>Home</a> 
-            <a href="" class="signout" style="padding: 12px"><i class="fa fa-user" aria-hidden="true"></i>Profile</a>    
-                  <a href="" class="signout" ><i class="fa fa-sign-out" aria-hidden="true"></i>Sign out</a>    
-        
+            <a href="{{ url_for('home') }}" class="signout">  <i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            <a href="{{ url_for('logout') }}"  class="signout" style="padding: 8px"><i class="fa fa-sign-out" aria-hidden="true"></i>Sign out</a>
+  
+      
                 </div>
      </header>
 

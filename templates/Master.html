@@ -115,11 +115,13 @@
     <header>
         <div style="float: left;">
             <button id="toggle-sidebar"><i class="fa fa-bars" aria-hidden="true"></i></button>
-            <h4>   Dashboard </h4>
+            <!-- <i class="fa fa-tasks" aria-hidden="true"></i> Dashboard</a>     </h4> -->
+            <h4> <a href="{{ url_for('mainboard', user_id=user_id) }}" class="signout" style="padding: 12px">
+              <span style="font-size: 25px;">  Dashboard</span></a>     </h4> 
         </div>
         <div style="float: right;">
             <a href="{{ url_for('home') }}" class="signout">  <i class="fa fa-home" aria-hidden="true"></i> Home</a>
-            <a href="{{ url_for('mainboard', user_id=user_id) }}" class="signout" style="padding: 12px"><i class="fa fa-tasks" aria-hidden="true"></i> Dashboard</a>   
+             
         </div>
     </header>
 
