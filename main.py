@@ -1,27 +1,24 @@
-from flask import Flask, flash, request, render_template, jsonify, url_for, redirect, make_response
+from flask import flash, request, render_template, jsonify, url_for, redirect, make_response
 import json
 from flask_mail import Mail, Message
-from model import *
-from flask_sqlalchemy import SQLAlchemy
 import MySQLdb
 from reportlab.pdfgen import canvas
 from sqlalchemy.orm import aliased
 import hashlib
 from datetime import timedelta
-from sqlalchemy import asc, desc, and_, or_
+from sqlalchemy import asc, desc, and_, or_, func
 from datetime import datetime
-from config import Config
 from uuid  import uuid4
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_apscheduler import APScheduler
 import os
 
-app = Flask(__name__)
-app.config.from_object(Config)
+from model import *
 
-db = SQLAlchemy(app)
+#app = Flask(__name__)
+
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 jwt = JWTManager(app)
 # db.init_app(app)
@@ -34,178 +31,10 @@ scheduler = APScheduler()
 scheduler.init_app(app)
 
 
-
-# app.jinja_env.globals.update(file_exists=file_exists)
-# app.jinja_env.globals.update(os=os)
-class Emailserver(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    emailid = db.Column(db.String(128), nullable=False, unique=True)
-    sender =  db.Column(db.String(255), nullable=False)
-    cc =  db.Column(db.String(255), nullable=True)
-    mail_server =  db.Column(db.String(255), nullable=False)
-    mail_port = db.Column(db.Integer, nullable=False)
-    mail_use_tls = db.Column(db.Boolean, default=True)
-    mail_use_ssl = db.Column(db.Boolean, default=False)
-    username = db.Column(db.String(255), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    active = db.Column(db.String(255), default='No')
-    
-    def __init__(self, *args, **kwargs):
-        self.emailid = str(uuid4())
-        super().__init__(*args, **kwargs)
-
-class Test(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    test_name = db.Column(db.String(255), nullable=False)
-    test_id = db.Column(db.String(128), nullable=False, unique=True)
-    created = db.Column(db.DateTime, default=datetime.now())
-    userid = db.Column(db.String(128), db.ForeignKey('user.userid'), nullable=False)
-    questions = db.relationship('Question', backref='test', lazy=True)
-    teststats = db.relationship('Teststat', backref='test', lazy=True)
-    
-    def __init__(self, test_name):
-        self.test_name = test_name
-        self.test_id = str(uuid4())
-
-class Teststat(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    test_id = db.Column(db.String(128), db.ForeignKey('test.test_id'), nullable=False)
-    test_day_id = db.Column(db.String(128), nullable=False, unique=True)
-    test_date = db.Column(db.DateTime, nullable=False)
-    duration = db.Column(db.Integer, default=0)
-    status =  db.Column(db.String(128), nullable=False, default='pending')
-    applicanttests = db.relationship('Applicanttest', backref='teststat', lazy=True)
-  
-    def __init__(self, test_date, duration):
-        self.test_day_id = str(uuid4())
-        self.test_date = test_date
-        self.duration = duration
-    
-class Applicanttest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_email = db.Column(db.String(255), nullable=False)
-    fullname = db.Column(db.String(255), nullable=False)
-    user_id = db.Column(db.String(128), nullable=False)
-    #test_date = db.Column(db.DateTime, nullable=False)
-    test_day_id = db.Column(db.String(128), db.ForeignKey('teststat.test_day_id'), nullable=False)
-    secret_key = db.Column(db.String(128), nullable=False)
-    started = db.Column(db.Boolean, default=False)
-    start_date = db.Column(db.DateTime, nullable=True)
-    #test_day_id = db.Column(db.String(128), nullable=False)
-    #duration = db.Column(db.Integer, default=0)  # New field
-    test_status = db.Column(db.String(128), nullable=False, default='pending')
-    score = db.Column(db.Integer, default=0) 
-
-    def __init__(self, user_email, start_date, fullname):
-        self.start_date = start_date
-        #self.test_day_id = test_day_id
-        self.user_email = user_email
-        self.fullname = fullname
-        self.user_id =  str(uuid4())
-        #self.test_id = test_id
-        self.secret_key =  str(uuid4())
-    
-
-class Userquestion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String(255), nullable=False)
-    question_id = db.Column(db.String(255), nullable=False)
-    Qnum = db.Column(db.Integer, nullable=True)
-    answer_chosen = db.Column(db.String(255))
-    created_date = db.Column(db.DateTime, default=datetime.now())
-
-    def __init__(self, user_id, question_id, answer_chosen=None, Qnum=None):
-        self.user_id = user_id
-        self.question_id = question_id
-        self.answer_chosen = answer_chosen
-        self.Qnum = Qnum
-
-class Question(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(255), nullable=False)
-    question_id = db.Column(db.String(128), nullable=False, unique=True)
-    Qnum = db.Column(db.Integer, nullable=True)
-    correct_answer = db.Column(db.String(128), nullable=True)
-    test_id = db.Column(db.String(128), db.ForeignKey('test.test_id'), nullable=False)
-    image_path = db.Column(db.String(255), nullable=True)
-    options = db.relationship('Option', backref='question', lazy=True)
-
-    def __init__(self, text, question_id=None, *args, **kwargs):
-        super().__init__(text=text, question_id=question_id, *args, **kwargs)
-        if not question_id:
-            self.question_id = hashlib.md5(text.encode()).hexdigest()
-
-class Option(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(255), nullable=False)
-    Opnum = db.Column(db.Integer, nullable=False)
-    question_id = db.Column(db.String(128), db.ForeignKey('question.question_id'), nullable=False)
-
-class Company(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    companyid = db.Column(db.String(255), unique=True, nullable=True)
-    company_name = db.Column(db.String(255), nullable=False)
-    company_email = db.Column(db.String(255), nullable=False)
-    company_website = db.Column(db.String(255), nullable=True)
-    company_address = db.Column(db.Text, nullable=False)
-    confirm = db.Column(db.Boolean, default=False)
-    users = db.relationship('User', backref='company', lazy=True)
-    
-    def __init__(self, company_name, company_email, company_website,company_address):
-        self.companyid = str(uuid4())
-        self.company_name = company_name
-        self.company_email = company_email
-        self.company_address = company_address
-        self.company_website = company_website
-    
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    userid = db.Column(db.String(128), unique=True, nullable=True)
-    company_id = db.Column(db.String(255), db.ForeignKey('company.companyid'), nullable=False)
-    email = db.Column(db.String(128), nullable=False)
-    _password = db.Column('password',
-                        db.String(128),
-                        nullable=False)
-    first_name = db.Column(db.String(128))
-    last_name = db.Column(db.String(128))
-    role = db.Column(db.String(10), nullable=True)
-    created = db.Column(db.DateTime, default=datetime.now())
-    tests = db.relationship('Test', backref='user', lazy=True)
-   
-    def __init__(self, *args, **kwargs):
-        """initializes user"""
-        self.userid = str(uuid4())
-        super().__init__(*args, **kwargs)
-
-    # def __repr__(self):
-    # return f"<User id: {self.id} Names: {self.first_name} {self.last_name}>"
-    
-    def is_authenticated(self):
-        return True  # Assuming all users are authenticated
-
-    def is_active(self):
-        return True  # Assuming all users are active
-
-    def is_anonymous(self):
-        return False  # False for regular users, True for an anonymous user
-
-    def get_id(self):
-        return str(self.id)
-    
-    @property
-    def password(self):
-        return self._password
-    
-    @password.setter
-    def password(self, pwd):
-        """hashing password values"""
-        self._password = hashlib.md5(pwd.encode()).hexdigest()
-
 #db.init_app(app)
 
-""" with app.app_context():
-    db.create_all() """
+with app.app_context():
+    db.create_all()
         
 """ @app.before_request
 def create_tables():
@@ -591,6 +420,7 @@ def saveuser(user_id):
                 return jsonify(response_data), 200
             u = User(company_id=user.company_id, email=email, first_name=fn, last_name=ln,
                      role=role, password=pwd)
+            com = Company.query.filter_by(companyid=user.company_id).first()
             u.created = datetime.now()
             db.session.add(u)
             db.session.commit()
@@ -598,6 +428,13 @@ def saveuser(user_id):
                 'status': 'success',
                 'message': 'User saved successfully'
             }
+            try:
+                run_time = datetime.now() + timedelta(seconds=10) 
+                scheduler.add_job(id=f'send_newuser_mail{pwd}', func=send_newuser_mail, args=(pwd, fn, email, 'luvpascal.ojukwu@yahoo.com', com.company_name), trigger='date', run_date=run_time)
+                # send_test_mail(test_day_id, applicant.user_id)
+            except:
+                return jsonify({'message': 'INFO: An error occured while sending mail'})
+
 
             return jsonify(response_data), 200
         else:
@@ -1377,6 +1214,12 @@ def deletetestday(test_day_id):
     if teststat:
         if teststat.status != 'pending':
             return jsonify({'error': 'WARNING: Test has been taken, cannot be deleted'})
+        test = Test.query.filter_by(test_id=teststat.test_id).first()
+        applicants = Applicanttest.query.filter_by(test_day_id=test_day_id, test_status='pending').all()
+        for a in applicants:
+            run_time = datetime.now() + timedelta(seconds=10) 
+            scheduler.add_job(id=f'send_canceltest_mail{a.user_id}', func=send_canceltest_mail, args=(a.fullname, test.test_name , a.user_email), trigger='date', run_date=run_time)        
+
     applicant = Applicanttest.query.filter_by(test_day_id=test_day_id).all()
     if applicant:
         for ap in applicant:
@@ -1507,19 +1350,69 @@ def rescheduletestpost(test_day_id):
     if ts.status == 'taken':
           return jsonify({'error': 'Test already taken, cant be rescheduled'})
     if ts.status != 'taken':
+        test = Test.query.filter_by(test_id=ts.test_id).first()
         ts.test_date = formatted_datetime
         db.session.commit()
+        applicants = Applicanttest.query.filter_by(test_day_id=test_day_id, test_status='pending').all()
+        for a in applicants:
+            run_time = datetime.now() + timedelta(seconds=10) 
+            scheduler.add_job(id=f'send_reschedule_mail{a.user_id}', func=send_reschedule_mail, args=(a.fullname, formatted_datetime, test.test_name , a.user_email), trigger='date', run_date=run_time)        
         # Return a success response
         flash('Test Rescheduled successfully')
         # return redirect(url_for('rescheduletestget', test_day_id=test_day_id))
         return jsonify({'message': 'Test Rescheduled successfully'})
+
+def send_canceltest_mail(name, testname, recipient_email):
+    with app.app_context():
+        html_content = render_template('Testcancel.html', name=name, testname=testname, recipient_email=recipient_email)
+        recipients = [recipient_email]
+        app.config['MAIL_SERVER'] = 'smtp.mail.yahoo.com'
+        app.config['MAIL_PORT'] = 587
+        app.config['MAIL_USE_TLS'] = True
+        app.config['MAIL_USE_SSL'] = False
+        app.config['MAIL_USERNAME'] = 'luvpascal.ojukwu@yahoo.com'
+        app.config['MAIL_PASSWORD'] = 'nvfolnadxvdepvxk'
+        mail = Mail(app)
+        msg = Message('Test Cancellation Notice', sender='luvpascal.ojukwu@yahoo.com', recipients=recipients, html=html_content)
+        mail.send(msg)
+
+def send_reschedule_mail(name, new_test_date, testname, recipient_email):
+    with app.app_context():
+        html_content = render_template('Testrechedule.html', name=name, new_test_date=new_test_date,
+                                        testname=testname, recipient_email=recipient_email)
+        recipients = [recipient_email]
+        app.config['MAIL_SERVER'] = 'smtp.mail.yahoo.com'
+        app.config['MAIL_PORT'] = 587
+        app.config['MAIL_USE_TLS'] = True
+        app.config['MAIL_USE_SSL'] = False
+        app.config['MAIL_USERNAME'] = 'luvpascal.ojukwu@yahoo.com'
+        app.config['MAIL_PASSWORD'] = 'nvfolnadxvdepvxk'
+        mail = Mail(app)
+        msg = Message('Test Reschedule Notification', sender='luvpascal.ojukwu@yahoo.com', recipients=recipients, html=html_content)
+        mail.send(msg)
+
+def send_newuser_mail(pwd, fn, recipient_email, email, companyname):
+    with app.app_context():
+        html_content = render_template('Usercreated.html', password=pwd, name=fn,
+                                        contactemail=email, companyname=companyname)
+        recipients = [recipient_email]
+        app.config['MAIL_SERVER'] = 'smtp.mail.yahoo.com'
+        app.config['MAIL_PORT'] = 587
+        app.config['MAIL_USE_TLS'] = True
+        app.config['MAIL_USE_SSL'] = False
+        app.config['MAIL_USERNAME'] = 'luvpascal.ojukwu@yahoo.com'
+        app.config['MAIL_PASSWORD'] = 'nvfolnadxvdepvxk'
+        mail = Mail(app)
+        msg = Message('New Member Registration - TestCompanion', sender='luvpascal.ojukwu@yahoo.com', recipients=recipients, html=html_content)
+        mail.send(msg)
+        
 def send_test_mail(test_day_id, user_id):
     with app.app_context():
         applicant = Applicanttest.query.filter_by(user_id=user_id).first()
         teststat = Teststat.query.filter_by(test_day_id=test_day_id).first()
         test = Test.query.filter_by(test_id=teststat.test_id).first()
-        user = User.query.filter_by(userid=user_id).first()
-        com = Company.query.filter_by(companyid=current_user.company_id).first()
+        user = User.query.filter_by(userid=test.userid).first()
+        com = Company.query.filter_by(companyid=user.company_id).first()
         recipient_email = applicant.user_email
         # username = "John Doe"
         # company = "Sample Company"
@@ -1592,7 +1485,13 @@ def Timeout(test_day_id, user_id):
                 if teststat.status != 'taken':
                     teststat.status = 'taken'
                 db.session.commit()
-                send_test_mail(test_day_id, user_id)
+                try:
+                    run_time = datetime.now() + timedelta(seconds=10) 
+                    scheduler.add_job(id=f'send_test_mail{user_id}', func=send_test_mail, args=(test_day_id, user_id), trigger='date', run_date=run_time)
+                except:
+                    return jsonify({'message': 'INFO: An error occured while sending mail to ' + applicant.user_email + 'please try again or check that the email is correct'})
+
+                # send_test_mail(test_day_id, user_id)
     return render_template('Timeout.html', test_day_id=test_day_id)
 
 #fetch question for the user
@@ -1690,6 +1589,47 @@ def get_data(test_id, user_id):
         json_data[correct_key] = lst
         json_data['Lnum'] = question.Qnum
     return jsonify(json_data)
+
+@app.route('/get_test/<user_id>', methods=['GET'])
+def get_test(user_id):
+    tests = Test.query.filter_by(userid=user_id).order_by(desc(Test.created)).all()
+    if tests:
+        test_names = [{'id': test.test_id, 'name': test.test_name, 'created': test.created.strftime('%m/%d/%Y %I:%M:%S %p')} for test in tests]
+        return jsonify(test_names)
+    else:
+        return jsonify({'error': 'No tests found'})
+    
+@app.route('/posttest_getquestions', methods=['POST'])
+@jwt_required()
+def posttest_getquestions():
+    data = request.json
+    new = data['new_test_id']
+    old = data['old_test_id']
+    newtest = Test.query.filter_by(test_id=new).first()
+    oldtest = Test.query.filter_by(test_id=old).first()
+    if len(oldtest.questions) <= 0:
+         response_data = {
+                'status': 'success',
+                'message': 'No questions found for the selected test'
+            }
+         return jsonify(response_data)
+    else:
+        for ques in oldtest.questions:
+            q = Question(text=ques.text, Qnum=ques.Qnum, correct_answer=ques.correct_answer
+                        )
+            newtest.questions.append(q)
+            db.session.commit()
+            for op in ques.options:
+                o = Option(text=op.text, Opnum=op.Opnum)
+                q.options.append(o)
+                db.session.commit()
+        response_data = {
+                    'status': 'success',
+                    'message': 'Questions imported successfully'
+                }
+        return jsonify(response_data)
+            
+            
 
 @app.route('/editquestion/<test_id>/<user_id>', methods=['GET'])
 def editquestion(test_id, user_id):
@@ -1822,7 +1762,6 @@ def question_post():
                 if ques:
                     db.session.delete(ques)
                     db.session.commit()
-
                 num = key.split("_")[-1]  # Extract the num from the key
                 option_key = f"option_text_{num}"
                 correct_key = f"correct_option_{num}[]"
@@ -1905,7 +1844,6 @@ def uploadimages(test_id):
         except Exception as e:
             print(f"Error processing file {file_key}: {str(e)}")
             continue
-
     response_data = {'status': 'success', 'message': 'Images uploaded successfully'}
     return jsonify(response_data)
 
@@ -1917,4 +1855,3 @@ def homepage():
 if __name__ == '__main__':
     scheduler.start()
     app.run(debug=True, host='0.0.0.0', port=5001)
-    

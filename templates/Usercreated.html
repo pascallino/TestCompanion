@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to TestCompanion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        Hi {{ name | escape }},
+        <p>You have successfully been registered as a member for company {{ companyname | escape }}.</p>
+        <p>Your setup password is: <strong>{{ password | escape }}</strong></p>
+        <p>Please keep this password confidential and do not share it with anyone.</p>
+        <p>You can change your password anytime in the profile section of the TestCompanion application.</p>
+        <p>Please feel free to contact us here <a href="mailto:{{ contactemail }}">mail@testcompanion.com</a>.</p>
+        <p>Thank you for choosing TestCompanion!</p><br>
+        <p>Regards,</p>
+        <p>TestCompanion.</p>
+
+    </div>
+    <div class="footer">
+        <p>This email was sent from TestCompanion. Please do not reply to this email.</p>
+    </div>
+</body>
+
+</html>

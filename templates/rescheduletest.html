@@ -125,7 +125,7 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    window.location.href = '/login';
+                    window.location.href = '/signin?next=/rescheduletest/{{ test_day_id }}';
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.json();

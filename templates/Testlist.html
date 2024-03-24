@@ -301,12 +301,17 @@ body {
                 // Hide the success message after a few seconds
                 setTimeout(() => {
                     hideSuccessMessage();
+                    location.reload();
                 }, 3000);
             console.log('Data received:', data);
-            location.reload();
+            if (data.msg === 'Token has expired') {
+                window.location.href = '/signin?next=/testlist/' + test_id ;
+            }
+            //location.reload();
             // Reload the page after a successful delete
         })
         .catch(error => {
+            window.location.href = '/signin?next=/testlist/' + test_id ;
             console.error('Fetch error:', error);
         });
     }

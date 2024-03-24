@@ -22,7 +22,7 @@
     <div class="container mt-3"><div style="float: right;">
         <a href="{{ url_for('testlist', test_id=test_id) }}" class="btn btn-secondary">Home</a>
     </div>
-        <h4 class="mb-4" style="text-align: center;"><b>Summary Report - {{ testname|escape }} <br> Total applicant(s): {{ count|escape }}</b></h4>
+        <h5 class="mb-4" style="text-align: center;"><b>Summary Report - {{ testname|escape }} <br> Total Candidate(s): {{ count|escape }}</b></h5>
         <!-- <h5 class="mb-4" style="text-align: center;"> <b>Total applicant(s): {{ count|escape }} </b></h5> -->
         <!-- Loop through the dataset -->
         {% for applicant in applicants %}

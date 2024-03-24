@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cancellation Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #c82333;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h3>{{ testname }} has been cancelled</h3>
+        <p>Dear {{ name | escape }},</p>
+        <p>We regret to inform you that your upcoming test has been cancelled.</p>
+        <p>We apologize for any inconvenience this may cause. If you have any questions or need further assistance, please contact us immediately </p>
+        <p>Thank you for your understanding.</p>
+        <p> <a href="mailto:{{ contactemail }}">Contact Support</a></p>
+    </div>
+    <div class="footer">
+        <p>This email was sent from TestCompanion. Please do not reply to this email.</p>
+    </div>
+</body>
+
+</html>

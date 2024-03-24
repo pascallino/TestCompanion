@@ -43,11 +43,10 @@
         <h4> About Us</h4>
         </div>
         <div style="float: right;">
-            <a href="{{ url_for('home') }}" class="signout">  <i class="fa fa-home" aria-hidden="true"></i> Home</a>  
+            <a href="{{ url_for('home') }}" class="signout">  <i class="fa fa-home" aria-hidden="true"></i>Home</a> &nbsp;
                         {% if  current_user.is_authenticated %} 
-        
+                        <a href="{{ url_for('mainboard', user_id=current_user.userid) }}" class="signout" ><i class="fa fa-tasks" aria-hidden="true"></i>Dashboard</a>   
                         <a href="{{ url_for('logout') }}"  class="signout" style="padding: 8px"><i class="fa fa-sign-out" aria-hidden="true"></i>Sign out</a>
-                        <a href="{{ url_for('mainboard', user_id=current_user.userid) }}" class="signout" ><i class="fa fa-tasks" aria-hidden="true"></i> Dashboard</a>   
                            {% endif %}
                 </div>
      </header>
