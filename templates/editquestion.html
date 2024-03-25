@@ -493,7 +493,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 'Authorization': `Bearer ${jwtToken}`
             });
             // Send JSON data to your API using fetch or another method
-            fetch('http://localhost:5001/question_post', {
+            fetch('/question_post', {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(jsonData),
@@ -524,7 +524,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => {
                 hideLoadingSpinner();
-               window.location.href = '/signin?next=/editquestion/' + testid + '/' + userid;
+               	window.location.href = '/signin?next=/editquestion/' + testid + '/' + userid;
                 console.error('Error sending data to API:', error);
             });
         }

@@ -399,7 +399,8 @@ def deleteuser(user_id):
 @jwt_required()
 def saveuser(user_id):
     try:
-        data = request.json
+        print('i came')
+        data = request.get_json()
         fn = data.get('firstName', '')
         ln = data.get('lastName', '')
         pwd = data.get('password', '')
@@ -688,9 +689,10 @@ def signin_post():
 
     # Set the JWT token as a cookie
     response = jsonify(access_token=access_token)
-    response.set_cookie('jwtToken', value=access_token, httponly=False, secure=True, path='/', samesite='Strict')  # Adjust secure=True based on your deployment
-    return response
-    return render_template('Signin.html')
+    response.set_cookie('jwtToken', value=access_token, httponly=False, secure=False, path='/')
+
+    # Make the response with the cookie
+    return make_response(response, 200)
 
 @app.route('/signup_post', methods=['POST'])
 def signup_post():
@@ -1656,9 +1658,14 @@ def authenticate_applicant(user_id, secret_key):
     user_id = user_id + secret_key
     access_token = create_access_token(user_id, expires_in)
     # Set the JWT token as a cookie
+    # response = jsonify(access_token=access_token)
+    #response.set_cookie('UserTestToken', value=access_token, httponly=False, secure=True, path='/', samesite='Strict')  # Adjust secure=True based on your deployment
+    # return response
     response = jsonify(access_token=access_token)
-    response.set_cookie('UserTestToken', value=access_token, httponly=False, secure=True, path='/', samesite='Strict')  # Adjust secure=True based on your deployment
-    return response
+    response.set_cookie('UserTestToken', value=access_token, httponly=False, secure=False, path='/')
+
+    # Make the response with the cookie
+    return make_response(response, 200)
 
 @app.route('/taketest/<user_id>/<key>', methods=['GET'])
 def taketest(user_id, key):
