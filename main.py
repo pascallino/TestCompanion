@@ -14,6 +14,7 @@ from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_apscheduler import APScheduler
 import os
+import shutil
 
 from model import *
 
@@ -1649,27 +1650,52 @@ def posttest_getquestions():
     old = data['old_test_id']
     newtest = Test.query.filter_by(test_id=new).first()
     oldtest = Test.query.filter_by(test_id=old).first()
+    base_url = os.path.dirname(os.path.abspath(__name__))
     if len(oldtest.questions) <= 0:
-         response_data = {
-                'status': 'success',
-                'message': 'No questions found for the selected test'
-            }
-         return jsonify(response_data)
+        response_data = {
+            'status': 'success',
+            'message': 'No questions found for the selected test'
+        }
+        return jsonify(response_data)
     else:
         for ques in oldtest.questions:
-            q = Question(text=ques.text, Qnum=ques.Qnum, correct_answer=ques.correct_answer
-                        )
+            q = Question(text=ques.text, Qnum=ques.Qnum, correct_answer=ques.correct_answer)
             newtest.questions.append(q)
             db.session.commit()
             for op in ques.options:
                 o = Option(text=op.text, Opnum=op.Opnum)
                 q.options.append(o)
                 db.session.commit()
+            # Copy, rename, and move the image file
+            imagetag = f"image_{ques.question_id}_{ques.test_id}"
+            img_extensions = ['.jpeg', '.jpg', '.png']
+            temp_dir = os.path.join(base_url, 'static', 'images','temp') # Update with your temporary directory path
+            static_images_dir = os.path.join(base_url, 'static', 'images')
+
+            for ext in img_extensions:
+                img_path_src = os.path.join(static_images_dir, f"{imagetag}{ext}")
+                if os.path.exists(img_path_src):
+                    img_path_temp = os.path.join(temp_dir)
+                    img_path_dst = os.path.join(static_images_dir)
+
+                    # Copy the file to temporary directory
+                    shutil.copy(img_path_src, img_path_temp)
+
+                    # Rename the file based on new IDs
+                    new_imagetag = f"image_{q.question_id}_{q.test_id}"
+                    print(new_imagetag)
+                    new_img_path_temp = os.path.join(temp_dir, f"{new_imagetag}{ext}")
+                    os.rename( os.path.join(img_path_temp, f"{imagetag}{ext}") , new_img_path_temp)
+
+                    # Move the renamed file back to static/images
+                    shutil.move(new_img_path_temp, img_path_dst)
+
         response_data = {
-                    'status': 'success',
-                    'message': 'Questions imported successfully'
-                }
+            'status': 'success',
+            'message': 'Questions imported successfully'
+        }
         return jsonify(response_data)
+
             
             
 
