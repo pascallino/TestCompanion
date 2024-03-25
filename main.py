@@ -362,27 +362,30 @@ def deleteuser(user_id):
     if not user:
          return jsonify({'message': 'The user doesn''t exist', 'status': 'error'}), 401  
     tests = Test.query.filter_by(userid=user_id).all()
+    base_url = os.path.dirname(os.path.abspath(__name__))
     for test in tests:
         test_id = test.test_id
         if test:
             Q = Question.query.filter_by(test_id=test_id).all()
             if Q:
-                try:
-                    imagstagjpeg = f"image_{Q.question_id}_{Q.test_id}.jpeg"
-                    imagstagjpg = f"image_{Q.question_id}_{Q.test_id}.jpg"
-                    imagstagpng = f"image_{Q.question_id}_{Q.test_id}.png"
-                    img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
-                    img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
-                    img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
-                    img_paths = [os.path.join(base_url, 'static', 'images', filename) for filename in (imagstagjpeg, imagstagjpg, imagstagpng)]
+                for q in Q:
+                    try:
+                        imagstagjpeg = f"image_{q.question_id}_{q.test_id}.jpeg"
+                        imagstagjpg = f"image_{q.question_id}_{q.test_id}.jpg"
+                        imagstagpng = f"image_{q.question_id}_{q.test_id}.png"
+                        img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
+                        img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
+                        img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
+                        img_paths = [os.path.join(base_url, 'static', 'images', filename) for filename in (imagstagjpeg, imagstagjpg, imagstagpng)]
 
-                    imageurl = None
-                    for path in img_paths:
-                        if os.path.exists(path):
-                            os.remove(path)
+                        imageurl = None
+                        for path in img_paths:
+                            if os.path.exists(path):
+                                print('i came here')
+                                os.remove(path)
     
-                except:
-                    pass
+                    except:
+                        pass
                 for q in Q:
                     uq = Userquestion.query.filter_by(question_id=q.question_id).all()
                     if uq:
