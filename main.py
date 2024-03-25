@@ -382,7 +382,6 @@ def deleteuser(user_id):
                         imageurl = None
                         for path in img_paths:
                             if os.path.exists(path):
-                                print('i came here')
                                 os.remove(path)
     
                     except:
