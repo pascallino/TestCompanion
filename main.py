@@ -368,18 +368,18 @@ def deleteuser(user_id):
             Q = Question.query.filter_by(test_id=test_id).all()
             if Q:
                 try:
-                imagstagjpeg = f"image_{Q.question_id}_{Q.test_id}.jpeg"
-                imagstagjpg = f"image_{Q.question_id}_{Q.test_id}.jpg"
-                imagstagpng = f"image_{Q.question_id}_{Q.test_id}.png"
-                img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
-                img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
-                img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
-                img_paths = [os.path.join(base_url, 'static', 'images', filename) for filename in (imagstagjpeg, imagstagjpg, imagstagpng)]
+                    imagstagjpeg = f"image_{Q.question_id}_{Q.test_id}.jpeg"
+                    imagstagjpg = f"image_{Q.question_id}_{Q.test_id}.jpg"
+                    imagstagpng = f"image_{Q.question_id}_{Q.test_id}.png"
+                    img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
+                    img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
+                    img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
+                    img_paths = [os.path.join(base_url, 'static', 'images', filename) for filename in (imagstagjpeg, imagstagjpg, imagstagpng)]
 
-                imageurl = None
-                for path in img_paths:
-                    if os.path.exists(path):
-                        os.remove(path)
+                    imageurl = None
+                    for path in img_paths:
+                        if os.path.exists(path):
+                            os.remove(path)
     
                 except:
                     pass
