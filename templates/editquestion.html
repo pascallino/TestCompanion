@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const headers = new Headers({
                 'Authorization': `Bearer ${jwtToken}`
             });
-            fetch(`http://localhost:5001/question_post_delete?hash=${hash_}`, {
+            fetch(`/question_post_delete?hash=${hash_}`, {
                 method: 'POST',
                 headers: headers,
             })

@@ -367,6 +367,22 @@ def deleteuser(user_id):
         if test:
             Q = Question.query.filter_by(test_id=test_id).all()
             if Q:
+                try:
+                imagstagjpeg = f"image_{Q.question_id}_{Q.test_id}.jpeg"
+                imagstagjpg = f"image_{Q.question_id}_{Q.test_id}.jpg"
+                imagstagpng = f"image_{Q.question_id}_{Q.test_id}.png"
+                img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
+                img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
+                img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
+                img_paths = [os.path.join(base_url, 'static', 'images', filename) for filename in (imagstagjpeg, imagstagjpg, imagstagpng)]
+
+                imageurl = None
+                for path in img_paths:
+                    if os.path.exists(path):
+                        os.remove(path)
+    
+                except:
+                    pass
                 for q in Q:
                     uq = Userquestion.query.filter_by(question_id=q.question_id).all()
                     if uq:
@@ -850,19 +866,28 @@ def testsummary(test_id, test_day_id, user_id):
                 img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
                 img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
                 img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
-                k = [img_path1, img_path2, img_path3]
-                for path in k:
+                img_paths = [os.path.join(base_url, 'static', 'images', filename) for filename in (imagstagjpeg, imagstagjpg, imagstagpng)]
+
+                imageurl = None
+                for path in img_paths:
                     if os.path.exists(path):
-                        path = path.split('/')[1:]
-                        imageurl = '/' + path[1] + '/' + path[2] + '/' + path[3] 
+                        imageurl = path.replace(base_url, '').replace('\\', '/')  # Adjust path separator for Windows
                         break
+
+                # print(imageurl)
+                # k = [img_path1, img_path2, img_path3]
+                # for path in k:
+                #    if os.path.exists(path):
+                #        path = path.split('/')[1:]
+                #        # imageurl = '/' + path[1] + '/' + path[2] + '/' + path[3]
+                #        print(imageurl)
+                #        break
                 question_text = ques.text
                 question_point = 0
                 if sorted(uq.answer_chosen) == sorted(ques.correct_answer):
                     correct_answers += 1
                     question_point = 1
                 questions_data.append({'text': question_text, 'point': question_point, 'imageurl': imageurl})
-
         applicant_data.append({
             'name': app.fullname,
             'email': app.user_email,
@@ -1146,10 +1171,16 @@ def deletemaintest(test_id):
                 img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
                 img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
                 img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
-                k = [img_path1, img_path2, img_path3]
-                for path in k:
+                img_paths = [os.path.join(base_url, 'static', 'images', filename) for filename in (imagstagjpeg, imagstagjpg, imagstagpng)]
+
+                imageurl = None
+                for path in img_paths:
                     if os.path.exists(path):
-                         os.remove(path)
+                        os.remove(path)
+                # k = [img_path1, img_path2, img_path3]
+                # for path in k:
+                #    if os.path.exists(path):
+                #         os.remove(path)
                 db.session.commit()
 
         teststat = Teststat.query.filter_by(test_id=test_id).all()
@@ -1532,12 +1563,18 @@ def get_question(question_num, test_day_id, user_id):
         img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
         img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
         img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
-        k = [img_path1, img_path2, img_path3]
-        for path in k:
+        img_paths = [os.path.join(base_url, 'static', 'images', filename) for filename in (imagstagjpeg, imagstagjpg, imagstagpng)]
+        imageurl = None
+        for path in img_paths:
             if os.path.exists(path):
-                path = path.split('/')[1:]
-                Ques_data['imageurl'] = '/' + path[1] + '/' + path[2] + '/' + path[3] 
+                Ques_data['imageurl'] = path.replace(base_url, '').replace('\\', '/')  # Adjust path separator for Windows
                 break
+        # k = [img_path1, img_path2, img_path3]
+        # for path in k:
+        #    if os.path.exists(path):
+        #        path = path.split('/')[1:]
+        #        Ques_data['imageurl'] = '/' + path[1] + '/' + path[2] + '/' + path[3] 
+        #        break
         Ques_data['Question'] = question.text
         Ques_data['question_id'] = question.question_id
         # Retrieve options and sort by Opnum in ascending order
@@ -1730,10 +1767,16 @@ def question_post_delete():
                 img_path1 = os.path.join(base_url, 'static/images', imagstagjpeg)
                 img_path2 = os.path.join(base_url, 'static/images', imagstagjpg)
                 img_path3 = os.path.join(base_url, 'static/images', imagstagpng)
-                k = [img_path1, img_path2, img_path3]
-                for path in k:
+                img_paths = [os.path.join(base_url, 'static', 'images', filename) for filename in (imagstagjpeg, imagstagjpg, imagstagpng)]
+
+                imageurl = None
+                for path in img_paths:
                     if os.path.exists(path):
-                            os.remove(path)
+                        os.remove(path)
+                # k = [img_path1, img_path2, img_path3]
+                # for path in k:
+                #    if os.path.exists(path):
+                #            os.remove(path)
             except:
                 pass
             db.session.delete(ques)

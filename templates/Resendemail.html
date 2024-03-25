@@ -237,7 +237,7 @@
         
         if (data.msg === 'Token has expired') {
             //window.location.href = '/login'
-            window.location.href = '/signin?next=/resendmailget/' + test_id + '/' + user_id;
+		window.location.href = '/signin?next=/resendmailget/{{ test_day_id }}/' + user_id;
 
         }
         setTimeout(() => {
