@@ -36,6 +36,22 @@ Copy code
 cd TestCompanion
 Install dependencies:
 
+More Info
+Install and activate venv
+To create a Python Virtual Environment, allowing you to install specific dependencies for this python project, we will install venv:
+
+The application was built using python3.8
+$ sudo apt-get install python3.8-venv
+$ python3 -m venv venv
+$ source venv/bin/activate
+Install MySQLdb module version 2.0.x
+For installing MySQLdb, you need to have MySQL installed: How to install MySQL 8.0 in Ubuntu
+
+$ sudo apt-get install python3-dev
+$ sudo apt-get install libmysqlclient-dev
+$ sudo apt-get install zlib1g-dev
+$ sudo pip3 install mysqlclient
+
 bash
 Copy code
 pip install -r requirements.txt
@@ -53,7 +69,7 @@ Start the Flask development server:
 bash
 Copy code
 python main.py
-Access the web app in your browser at http://localhost:5000.
+Access the web app in your browser at http://100.25.10.60:5001/home
 
 Usage
 Once the web app is running, you can access the different features by navigating to the respective sections:
@@ -73,3 +89,4 @@ Create a new Pull Request.
 Support
 For any issues or questions related to TestCompanion, please submit a new issue.
 
+api endpoints
