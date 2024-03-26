@@ -81,12 +81,43 @@ Profile: Customize your personal profile and preferences.
 Contributing
 We welcome contributions to improve and enhance TestCompanion! To contribute:
 
-Fork the repository.
-Create a new branch (git checkout -b feature-improvement).
-Make your changes and commit them (git commit -am 'Add new feature').
-Push to the branch (git push origin feature-improvement).
-Create a new Pull Request.
-Support
-For any issues or questions related to TestCompanion, please submit a new issue.
+
 
 api endpoints
+POST /Addtestuser/<test_id>/<user_id> : Add candidates
+GET /rescheduletest/<test_day_id> : Get Reshedule test
+POST rescheduletestpost/<test_day_id> Update Test
+GET /Timeout/<test_day_id>/<user_id> Timeout page
+GET /get_question/<int:question_num>/<test_day_id>/<user_id> Get test questions
+GET /get_data/<test_id>/<user_id> Get edited questions
+GET /get_test/<user_id> GET test
+POST /posttest_getquestions post imported question
+GET /editquestion/<test_id>/<user_id> edit question page
+POST /authenticate_applicant/<user_id>/<secret_key> verify candidates
+GET '/taketest/<user_id>/<key> Get test page
+DELETE /question_post_delete delete question 
+POST /question_post save questions
+POST /uploadimages/<test_id> upload question images
+GET /profileboard/<user_id> get profile page
+GET /get_profile/<user_id> get user profile
+GET /get_company/<user_id> get company data
+POST /savecompany/<user_id> save company
+POST /saveprofile/<user_id> savwe profile
+POST /testmail/<email_id>/<user_id> test mail
+GET /get_user/<user_id> get user 
+GET /get_mail/<user_id> get mail 
+DELETE /deleteuser/<user_id> delete user
+POST '/saveuser/<user_id> save user
+GET /userboard/<user_id> get user page
+GET /mainboard/<user_id> get main dashboard page
+GET /Registrationsuccess/<user_id> Registration success page 
+POST /signin_post sign in user
+POST /computescore/<test_day_id> compute score
+GET /testsummary/<test_id>/<test_day_id>/<user_id> summary report
+GET /login login page
+GET /home
+GET /features
+GET /contact
+GET /signup
+
+
